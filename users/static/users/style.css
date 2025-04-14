@@ -1,0 +1,266 @@
+/* =============================================
+   Guestly - Enhanced Grey/White Theme
+   ============================================= */
+
+/* Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  color: #2d3748;
+}
+
+/* Enhanced Grey-to-White Gradient Background */
+html, body.bg-gradient {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #949494 40%) no-repeat fixed;
+  margin: 0;
+  padding: 0;
+}
+
+/* Card with Subtle Glass Effect */
+.card {
+  border: none;
+  border-radius: 1rem;
+  overflow: hidden;
+  backdrop-filter: blur(2px);
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 50%, 
+              rgba(255,255,255,0.8) 0%, 
+              rgba(255,255,255,0) 30%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.shadow-lg {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Form Elements with Enhanced Styling */
+.form-control {
+  border: 1px solid #e0e6ed;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.form-control-lg {
+  padding: 0.75rem 1.25rem;
+  font-size: 1rem;
+  border-radius: 0.75rem;
+}
+
+.form-control:focus {
+  border-color: #a0aec0;
+  box-shadow: 0 0 0 0.2rem rgba(160, 174, 192, 0.25);
+  background-color: white;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.3px;
+}
+
+/* Buttons with Enhanced Styling */
+.btn {
+  font-weight: 500;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn-lg {
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 0.75rem;
+}
+
+.btn-primary {
+  background-color: #4a5568;
+  border-color: #4a5568;
+}
+
+.btn-primary:hover {
+  background-color: #2d3748;
+  border-color: #2d3748;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Alerts */
+.alert {
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+
+.alert-danger {
+  background-color: #fff5f5;
+  border-color: #fed7d7;
+  color: #e53e3e;
+}
+
+/* Text Styles */
+.text-primary {
+  color: #4a5568 !important;
+}
+
+.text-muted {
+  color: #718096 !important;
+}
+
+/* Hover Effects */
+a:hover {
+  color: #2d3748;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .card-body {
+    padding: 2rem !important;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    padding: 1rem;
+  }
+  
+  .form-control-lg {
+    padding: 0.65rem 1rem;
+  }
+  
+  .btn-lg {
+    padding: 0.65rem;
+    font-size: 1rem;
+  }
+}
+
+.dev-mode-nav {
+  background: linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.dev-mode-nav .container {
+  padding: 0.5rem 1rem;
+}
+
+.dev-mode-nav a {
+  color: white !important;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.dev-mode-nav a:hover {
+  background-color: rgba(255,255,255,0.2);
+  transform: translateY(-2px);
+}
+
+.dev-mode-nav a i {
+  font-size: 1rem;
+}
+
+.dev-mode-nav a.active {
+  background-color: rgba(255,255,255,0.3);
+  font-weight: 600;
+}
+
+.dev-mode-toggle .form-check-label {
+  font-weight: 500;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dev-mode-toggle .form-check-input:checked {
+  background-color: #4ca1af;
+  border-color: #4ca1af;
+}
+
+/* Developer Mode Debug Panel */
+.dev-debug-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 0.5rem;
+  font-family: monospace;
+  font-size: 0.8rem;
+  z-index: 9999;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.dev-debug-panel pre {
+  margin: 0;
+  color: #7fdbff;
+}
+
+.dev-debug-toggle {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10000;
+  background: #2c3e50;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+}

@@ -1,0 +1,112 @@
+z{% extends "users/base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Room Service Dashboard</h2>
+    <p>{{ welcome_message }}</p>
+    
+    <!-- Display Food Orders -->
+    <h3>Food Orders</h3>
+    {% if orders %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Guest</th>
+                <th>Room</th>
+                <th>Ordered At</th>
+                <th>Status</th>
+                <th>Total Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{ order.id }}</td>
+                <td>{{ order.guest.username }}</td>
+                <td>{{ order.room.room_number }}</td>
+                <td>{{ order.ordered_at|date:"M d, Y H:i" }}</td>
+                <td>{{ order.status }}</td>
+                <td>${{ order.total_price }}</td>
+                <td>
+                    {% if order.status == 'pending' %}
+                        <a href="{% url 'update_food_order_status' order.id 'preparing' %}" class="btn btn-sm btn-warning">Mark as Preparing</a>
+                    {% elif order.status == 'preparing' %}
+                        <a href="{% url 'update_food_order_status' order.id 'delivered' %}" class="btn btn-sm btn-success">Mark as Delivered</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No food orders pending.</p>
+    {% endif %}
+
+    <!-- Display General Service Requests -->
+    <h3 class="mt-5">General Service Requests</h3>
+    {% if service_requests %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Request ID</th>
+                <th>Guest</th>
+                <th>Room</th>
+                <th>Type</th>
+                <th>Requested At</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in service_requests %}
+            <tr id="service-row-{{ req.id }}">
+                <td>{{ req.id }}</td>
+                <td>{{ req.guest.username }}</td>
+                <td>{{ req.room.room_number }}</td>
+                <td>{{ req.get_request_type_display }}</td>
+                <td>{{ req.created_at|date:"M d, Y H:i" }}</td>
+                <td>{{ req.status }}</td>
+                <td>
+                    <button class="btn btn-sm btn-success" onclick="completeServiceRequest('{{ req.id }}')">
+                        Mark as Completed
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No pending service requests.</p>
+    {% endif %}
+</div>
+
+<script>
+    const csrfToken = "{{ csrf_token }}";
+
+    function completeServiceRequest(requestId) {
+        const url = "{% url 'complete_service_request_ajax' 0 %}".replace("0", requestId);
+        fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                const row = document.getElementById("service-row-" + requestId);
+                if (row) row.remove();
+            } else if (data.error) {
+                alert("Error: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Error during AJAX call:", error);
+            alert("An error occurred. Please try again.");
+        });
+    }
+</script>
+{% endblock %}

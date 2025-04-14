@@ -1,0 +1,27 @@
+# Python
+*.pyc
+__pycache__/
+
+# Django
+*.log
+*.pot
+*.py[cod]
+*.swp
+.env
+media/
+staticfiles/
+
+# MySQL (ignore DB dumps)
+*.sql
+*.mysql
+
+# Virtual environments
+venv/
+env/
+
+# Node
+node_modules/
+
+# IDEs
+.vscode/
+.idea/

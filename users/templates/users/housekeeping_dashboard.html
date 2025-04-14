@@ -1,0 +1,101 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">
+                <i class="fas fa-broom me-2"></i>
+                Housekeeping Dashboard
+            </h2>
+            <p class="mb-0 small">Welcome, {{ request.user.username }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-exclamation-circle text-warning me-2"></i>
+                        Rooms Needing Cleaning
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if rooms_needing_cleaning %}
+                    <div class="list-group">
+                        {% for room in rooms_needing_cleaning %}
+                        <div class="list-group-item border-0 d-flex justify-content-between align-items-center px-0">
+                            <div>
+                                <i class="fas fa-door-open text-muted me-2"></i>
+                                Room {{ room.room_number }}
+                            </div>
+                            <a href="{% url 'mark_room_cleaned' room.id %}" class="btn btn-sm btn-success">
+                                <i class="fas fa-check me-1"></i> Mark Cleaned
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-check-circle text-success mb-2" style="font-size: 2rem;"></i>
+                        <p class="mb-0">All rooms are clean</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-tasks text-info me-2"></i>
+                        Pending Cleaning Requests
+                    </h3>
+                </div>
+                <div class="card-body">
+                    {% if cleaning_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Room</th>
+                                    <th>Type</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for clean_req in cleaning_requests %}
+                                <tr id="clean_req-{{ clean_req.id }}">
+                                    <td>{{ clean_req.id }}</td>
+                                    <td>{{ clean_req.room.room_number }}</td>
+                                    <td>{{ clean_req.get_request_type_display }}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success" onclick="completeCleaningRequest('{{ clean_req.id }}')">
+                                            <i class="fas fa-check me-1"></i> Complete
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-3">
+                        <i class="fas fa-check-circle text-success mb-2" style="font-size: 2rem;"></i>
+                        <p class="mb-0">No pending requests</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// (Keep your existing JavaScript code here)
+</script>
+{% endblock %}

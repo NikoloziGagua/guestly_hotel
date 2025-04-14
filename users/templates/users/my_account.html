@@ -1,0 +1,142 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Profile Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-user-circle me-2"></i>
+                        My Profile
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Profile Header -->
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="position-relative me-4">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="Profile Picture" 
+                                     class="rounded-circle shadow" 
+                                     style="width: 100px; height: 100px; object-fit: cover;">
+                            {% else %}
+                                <img src="{% static 'images/default_profile.png' %}" alt="Default Profile" 
+                                     class="rounded-circle shadow" 
+                                     style="width: 100px; height: 100px; object-fit: cover;">
+                            {% endif %}
+                            <span class="position-absolute bottom-0 end-0 bg-info rounded-circle p-2 border border-3 border-white">
+                                <i class="fas fa-pencil-alt text-white" style="font-size: 0.8rem;"></i>
+                            </span>
+                        </div>
+                        <div>
+                            <h3 class="fw-bold mb-1">{{ user.first_name }} {{ user.last_name }}</h3>
+                            <p class="text-muted mb-2">@{{ user.username }}</p>
+                            <span class="badge bg-info text-dark px-3 py-1 rounded-pill">
+                                <i class="fas fa-user me-1"></i> Guest
+                            </span>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Account Details -->
+                    <div class="mb-4">
+                        <h5 class="fw-bold mb-3 d-flex align-items-center">
+                            <i class="fas fa-id-card me-2 text-primary"></i>
+                            Account Details
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle p-2 me-3">
+                                        <i class="fas fa-envelope text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 text-muted small">Email</p>
+                                        <p class="mb-0 fw-bold">{{ user.email }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-light rounded-circle p-2 me-3">
+                                        <i class="fas fa-calendar-alt text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 text-muted small">Member Since</p>
+                                        <p class="mb-0 fw-bold">{{ user.date_joined|date:"F j, Y" }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Booking Section -->
+                    <div>
+                        <h5 class="fw-bold mb-3 d-flex align-items-center">
+                            <i class="fas fa-calendar-check me-2 text-primary"></i>
+                            Current Booking
+                        </h5>
+                        
+                        {% if active_booking %}
+                        <div class="card border-0 bg-light shadow-sm-hover">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <p class="mb-1 text-muted small">Room Number</p>
+                                        <h4 class="fw-bold mb-0">{{ active_booking.room.room_number }}</h4>
+                                    </div>
+                                    <div class="col-md-4 mb-3 mb-md-0">
+                                        <p class="mb-1 text-muted small">Check-in</p>
+                                        <p class="fw-bold mb-0">{{ active_booking.check_in_date|date:"M j, Y" }}</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-1 text-muted small">Check-out</p>
+                                        <p class="fw-bold mb-0">{{ active_booking.check_out_date|date:"M j, Y" }}</p>
+                                    </div>
+                                </div>
+                                <div class="text-end mt-3">
+                                    <a href="{% url 'booking_detail' active_booking.id %}" 
+                                       class="btn btn-primary btn-sm px-4">
+                                        <i class="fas fa-info-circle me-1"></i> View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="card border-0 bg-light">
+                            <div class="card-body text-center py-4">
+                                <i class="fas fa-door-open text-muted mb-3" style="font-size: 2rem;"></i>
+                                <h6 class="fw-bold mb-2">No Active Bookings</h6>
+                                <p class="text-muted small mb-0">You don't have any active bookings at the moment</p>
+                                <a href="{% url 'room_list' %}" class="btn btn-sm btn-outline-primary mt-3">
+                                    <i class="fas fa-search me-1"></i> Browse Rooms
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .shadow-sm-hover {
+        transition: all 0.3s ease;
+    }
+    .shadow-sm-hover:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+    }
+    .card-header {
+        border-radius: 0.5rem 0.5rem 0 0 !important;
+    }
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}

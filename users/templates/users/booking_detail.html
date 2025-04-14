@@ -1,0 +1,148 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Booking Details for Room {{ booking.room.room_number }}
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h3 class="h5 mb-3">Booking Information</h3>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-calendar-check text-muted me-2"></i> <strong>Check-In:</strong> {{ booking.check_in_date }}</li>
+                        <li class="mb-2"><i class="fas fa-calendar-times text-muted me-2"></i> <strong>Check-Out:</strong> {{ booking.check_out_date }}</li>
+                        <li><i class="fas fa-money-bill-wave text-muted me-2"></i> <strong>Room Cost:</strong> ${{ room_cost|floatformat:2 }}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h3 class="h5 mb-3">Room Information</h3>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-bed text-muted me-2"></i> <strong>Type:</strong> {{ booking.room.get_room_type_display }}</li>
+                        <li><i class="fas fa-info-circle text-muted me-2"></i> <strong>Status:</strong> {{ booking.room.get_status_display }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h3 class="h5 mb-0">
+                                <i class="fas fa-utensils me-2"></i>
+                                Food Orders
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            {% if food_orders %}
+                            <ul class="list-group list-group-flush">
+                                {% for order in food_orders %}
+                                <li class="list-group-item border-0 px-0 py-2">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>#{{ order.id }}</strong> - {{ order.ordered_at|date:"M d, Y H:i" }}
+                                            <br>
+                                            <span class="badge bg-{% if order.status == 'delivered' %}success{% else %}warning{% endif %}">
+                                                {{ order.status }}
+                                            </span>
+                                        </div>
+                                        <div class="text-end">
+                                            ${{ order.total_price|floatformat:2 }}
+                                        </div>
+                                    </div>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-muted mb-0">No food orders yet.</p>
+                            {% endif %}
+                            <a href="{% url 'food_menu' %}" class="btn btn-sm btn-outline-primary mt-3">
+                                <i class="fas fa-plus me-1"></i> Place Order
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-header bg-white">
+                            <h3 class="h5 mb-0">
+                                <i class="fas fa-broom me-2"></i>
+                                Service Requests
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            {% if service_requests %}
+                            <ul class="list-group list-group-flush">
+                                {% for req in service_requests %}
+                                <li class="list-group-item border-0 px-0 py-2">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>#{{ req.id }}</strong> - {{ req.get_request_type_display }}
+                                            <br>
+                                            <span class="badge bg-{% if req.status == 'completed' %}success{% else %}info{% endif %}">
+                                                {{ req.status }}
+                                            </span>
+                                        </div>
+                                        <div class="text-end">
+                                            ${{ req.cost|floatformat:2 }}
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">{{ req.created_at|date:"M d, Y H:i" }}</small>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-muted mb-0">No service requests yet.</p>
+                            {% endif %}
+                            <a href="{% url 'create_general_service_request' room_number=booking.room.room_number %}" class="btn btn-sm btn-outline-primary mt-3">
+                                <i class="fas fa-plus me-1"></i> Request Service
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-receipt me-2"></i>
+                        Billing Summary
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item border-0 d-flex justify-content-between px-0">
+                            <span>Room Cost:</span>
+                            <span>${{ room_cost|floatformat:2 }}</span>
+                        </li>
+                        <li class="list-group-item border-0 d-flex justify-content-between px-0">
+                            <span>Food Orders:</span>
+                            <span>${{ food_cost|floatformat:2 }}</span>
+                        </li>
+                        <li class="list-group-item border-0 d-flex justify-content-between px-0">
+                            <span>Service Requests:</span>
+                            <span>${{ service_cost|floatformat:2 }}</span>
+                        </li>
+                        <li class="list-group-item border-0 d-flex justify-content-between px-0 fw-bold">
+                            <span>Total:</span>
+                            <span>${{ total_cost|floatformat:2 }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{% url 'guest_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "users/base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Add New Food Item</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Add Food Item</button>
+    </form>
+    <a href="{% url 'manage_food_menu' %}" class="btn btn-secondary mt-3">Back to Food Menu Management</a>
+</div>
+{% endblock %}

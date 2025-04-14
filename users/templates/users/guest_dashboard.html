@@ -1,0 +1,141 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Dashboard Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">Welcome, {{ request.user.first_name }}</h2>
+            <p class="text-muted mb-0">{{ welcome_message }}</p>
+        </div>
+       
+    </div>
+
+    <!-- Active Booking Section -->
+    {% if active_booking %}
+    <div class="card border-0 shadow-sm mb-4 animate-fade-in">
+        <div class="card-header bg-primary text-white">
+            <h3 class="h5 mb-0"><i class="fas fa-calendar-check me-2"></i>Your Active Booking</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4 class="h5">Room {{ active_booking.room.room_number }}</h4>
+                    <span class="badge bg-info text-dark mb-2">{{ active_booking.room.get_room_type_display }}</span>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-money-bill-wave text-muted me-2"></i> Price per night: ${{ active_booking.room.price_per_night }}</li>
+                        <li class="mb-2"><i class="fas fa-info-circle text-muted me-2"></i> Status: {{ active_booking.room.get_status_display }}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <div class="bg-light p-3 rounded">
+                        <ul class="list-unstyled mb-0">
+                            <li class="d-flex justify-content-between mb-2">
+                                <span>Check-In:</span>
+                                <strong>{{ active_booking.check_in_date }}</strong>
+                            </li>
+                            <li class="d-flex justify-content-between mb-2">
+                                <span>Check-Out:</span>
+                                <strong>{{ active_booking.check_out_date }}</strong>
+                            </li>
+                            <li class="d-flex justify-content-between mb-2">
+                                <span>Total Cost:</span>
+                                <strong>${{ active_booking.total_price|floatformat:2 }}</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <a href="{% url 'booking_detail' active_booking.id %}" class="btn btn-primary me-2">
+                    <i class="fas fa-info-circle me-1"></i> Booking Details
+                </a>
+                    
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- No Active Booking Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-door-open text-muted mb-3" style="font-size: 2.5rem;"></i>
+            <h3 class="h5 mb-2">You are not currently checked in</h3>
+            <p class="text-muted">Browse available rooms below or check your past bookings</p>
+            {% if 'past_bookings' in request.resolver_match.url_name %}
+                <a href="#" class="btn btn-outline-primary mt-2">
+                    <i class="fas fa-history me-1"></i> View Past Stays
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Available Rooms Section -->
+    {% if available_rooms %}
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h3 class="h5 mb-0"><i class="fas fa-bed me-2"></i>Available Rooms</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for room in available_rooms %}
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100 border-0 shadow-sm-hover">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h4 class="h5 mb-1">Room {{ room.room_number }}</h4>
+                                <span class="badge bg-info text-dark">{{ room.get_room_type_display }}</span>
+                            </div>
+                            <p class="text-muted small mb-2">
+                                <i class="fas fa-star text-muted me-2"></i> 
+                                {{ room.get_status_display }}
+                            </p>
+                            
+                            <ul class="list-unstyled small mb-3">
+                                <li class="mb-1"><i class="fas fa-money-bill-wave text-muted me-2"></i> Price: ${{ room.price_per_night }}/night</li>
+                                <li class="mb-1"><i class="fas fa-info-circle text-muted me-2"></i> Status: {{ room.get_status_display }}</li>
+                            </ul>
+                            
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="h5 mb-0">${{ room.price_per_night }}</span>
+                                    <span class="text-muted small">/night</span>
+                                </div>
+                                <a href="{% url 'create_booking' room.id %}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-calendar-plus me-1"></i> Book Now
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% elif not active_booking %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-4">
+            <i class="fas fa-bed text-muted mb-2" style="font-size: 2rem;"></i>
+            <h3 class="h5 mb-1">No Rooms Available</h3>
+            <p class="text-muted mb-0">Please check back later for availability</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .shadow-sm-hover {
+        transition: all 0.3s ease;
+    }
+    .shadow-sm-hover:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+        transform: translateY(-2px);
+    }
+    .badge {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}

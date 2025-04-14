@@ -1,0 +1,89 @@
+{% extends "users/base.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0"><i class="fas fa-chart-line me-2"></i>Manager Analytics & Reports</h2>
+        </div>
+        <div class="card-body p-4">
+            <!-- Salary Data Section -->
+            <div class="mb-5">
+                <h3 class="h5 mb-3 border-bottom pb-2"><i class="fas fa-money-check-alt me-2"></i>Salary Records Summary</h3>
+                {% if salary_data %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Role</th>
+                                <th>Tasks Completed</th>
+                                <th>Total Payment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in salary_data %}
+                            <tr>
+                                <td><span class="badge bg-info text-dark">{{ record.role|capfirst }}</span></td>
+                                <td>{{ record.total_tasks }}</td>
+                                <td class="fw-bold">${{ record.total_amount|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle me-2"></i> No salary records found.
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Revenue Data Section -->
+            <div>
+                <h3 class="h5 mb-3 border-bottom pb-2"><i class="fas fa-chart-pie me-2"></i>Revenue Breakdown</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body">
+                                <h4 class="h6 text-muted">Room Revenue</h4>
+                                <p class="h3 text-primary">${{ room_revenue|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body">
+                                <h4 class="h6 text-muted">Food Revenue</h4>
+                                <p class="h3 text-success">${{ food_revenue|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body">
+                                <h4 class="h6 text-muted">Service Revenue</h4>
+                                <p class="h3 text-info">${{ service_revenue|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0 mb-3">
+                            <div class="card-body">
+                                <h4 class="h6 text-muted">Profit (75%)</h4>
+                                <p class="h3 text-success">${{ profit|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h4 class="h6 text-muted">Maintenance Cost (25%)</h4>
+                                <p class="h3 text-danger">${{ maintenance_cost|floatformat:2 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

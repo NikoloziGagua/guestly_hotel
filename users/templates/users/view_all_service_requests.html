@@ -1,0 +1,45 @@
+{% extends "users/base.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0"><i class="fas fa-concierge-bell me-2"></i>All Service Requests</h2>
+        </div>
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="bg-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Guest</th>
+                            <th>Room</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                            <th>Requested On</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                        <tr>
+                            <td>#{{ req.id }}</td>
+                            <td>{{ req.guest.username }}</td>
+                            <td><span class="badge bg-secondary">Room {{ req.room.room_number }}</span></td>
+                            <td><span class="badge bg-info text-dark">{{ req.get_request_type_display }}</span></td>
+                            <td><span class="badge 
+                                {% if req.status == 'pending' %}bg-warning text-dark
+                                {% elif req.status == 'completed' %}bg-success
+                                {% else %}bg-primary{% endif %}">
+                                {{ req.status|title }}
+                            </span></td>
+                            <td>{{ req.description|default:"—"|truncatechars:30 }}</td>
+                            <td>{{ req.created_at|date:"M d, Y H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

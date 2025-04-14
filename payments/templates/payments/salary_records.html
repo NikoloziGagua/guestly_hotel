@@ -1,0 +1,27 @@
+{% extends "users/base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Salary Records</h2>
+    <p>{{ welcome_message }}</p>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Role</th>
+                <th>Amount</th>
+                <th>Completed At</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+            <tr>
+                <td>{{ record.get_role_display }}</td>
+                <td>${{ record.amount|floatformat:2 }}</td>
+                <td>{{ record.completed_at|date:"M d, Y H:i" }}</td>
+                <td>{{ record.description }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

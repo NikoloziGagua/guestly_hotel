@@ -1,0 +1,129 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">
+                <i class="fas fa-user-shield me-2"></i>
+                Manager Control Panel
+            </h2>
+            <p class="mb-0 small">Welcome, {{ user.username }}</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Room Management -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-hotel me-2"></i>
+                        Room Management
+                    </h3>
+                </div>
+                <div class="card-body text-center py-4">
+                    <a href="{% url 'room_management_home' %}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-door-open me-1"></i> Manage Rooms
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-success text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        Bookings
+                    </h3>
+                </div>
+                <div class="card-body text-center py-4">
+                    <a href="{% url 'view_all_bookings' %}" class="btn btn-outline-success w-100">
+                        <i class="fas fa-list me-1"></i> View All Bookings
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Food & Room Service -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-utensils me-2"></i>
+                        Food Service
+                    </h3>
+                </div>
+                <div class="card-body text-center py-4">
+                    <a href="{% url 'manage_food_menu' %}" class="btn btn-outline-warning w-100 mb-2">
+                        <i class="fas fa-edit me-1"></i> Manage Menu
+                    </a>
+                    <a href="{% url 'room_service_overview' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-concierge-bell me-1"></i> Service Overview
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Housekeeping -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-info text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-broom me-2"></i>
+                        Housekeeping
+                    </h3>
+                </div>
+                <div class="card-body text-center py-4">
+                    <a href="{% url 'view_all_service_requests' %}" class="btn btn-outline-info w-100">
+                        <i class="fas fa-tasks me-1"></i> Service Requests
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Management -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-users me-2"></i>
+                        User Management
+                    </h3>
+                </div>
+                <div class="card-body text-center py-4">
+                    <a href="{% url 'view_all_users' %}" class="btn btn-outline-dark w-100 mb-2">
+                        <i class="fas fa-user-friends me-1"></i> View Users
+                    </a>
+                    <a href="{% url 'assign_user_role' %}" class="btn btn-outline-secondary w-100 mb-2">
+                        <i class="fas fa-user-tag me-1"></i> Manage Roles
+                    </a>
+                    <a href="{% url 'salary_records' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-money-bill-wave me-1"></i> Staff Payments
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analytics -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="h5 mb-0">
+                        <i class="fas fa-chart-line me-2"></i>
+                        Analytics
+                    </h3>
+                </div>
+                <div class="card-body text-center py-4">
+                    <a href="{% url 'manager_reports' %}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-file-alt me-1"></i> View Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

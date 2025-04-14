@@ -1,0 +1,72 @@
+{% extends "users/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h4 mb-0">
+                <i class="fas fa-user-tie me-2"></i>
+                Receptionist Dashboard
+            </h2>
+            <p class="mb-0 small">{{ welcome_message }}</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white">
+            <h3 class="h5 mb-0">
+                <i class="fas fa-calendar-alt me-2"></i>
+                Current Bookings
+            </h3>
+        </div>
+        <div class="card-body">
+            {% if current_bookings %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Guest</th>
+                            <th>Room</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in current_bookings %}
+                        <tr>
+                            <td>{{ booking.id }}</td>
+                            <td>{{ booking.guest.username }}</td>
+                            <td>{{ booking.room.room_number }}</td>
+                            <td>
+                                <span class="badge bg-{% if booking.status == 'reserved' %}info{% else %}success{% endif %}">
+                                    {{ booking.status|title }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if booking.status == 'reserved' %}
+                                <a href="{% url 'check_in_booking' booking.id %}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-sign-in-alt me-1"></i> Check In
+                                </a>
+                                {% elif booking.status == 'checked_in' %}
+                                <a href="{% url 'check_out_booking' booking.id %}" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-sign-out-alt me-1"></i> Check Out
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-calendar-times text-muted mb-3" style="font-size: 2rem;"></i>
+                <p class="mb-0">No current bookings</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
