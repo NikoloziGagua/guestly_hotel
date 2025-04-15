@@ -10,7 +10,7 @@ from users.decorators import receptionist_required, manager_required, housekeepi
 
 @login_required
 def room_list(request):
-    """Display a list of all available rooms."""
+    """Display a list of all available rooms."""    
     rooms = Room.objects.filter(status='available')
     context = {'rooms': rooms}
     return render(request, 'rooms/room_list.html', context)

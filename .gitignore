@@ -26,3 +26,15 @@ node_modules/
 .idea/
 #igonre db.sqlite3
 db.sqlite3
+
+
+#how do i push this to git hub
+
+# 1. Initialize a git repository if you haven't already:
+git init
+# 2. Add your files to the staging area:    
+git add .
+# 3. Commit your changes:
+git commit -m "Initial commit"
+# 4. Create a new repository on GitHub (do not initialize with README or .gitignore)
+# 5. Add the remote repository URL to your local repository:
