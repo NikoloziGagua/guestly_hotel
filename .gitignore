@@ -24,3 +24,5 @@ node_modules/
 # IDEs
 .vscode/
 .idea/
+#igonre db.sqlite3
+db.sqlite3

@@ -25,19 +25,28 @@ Getting Started
 Follow these steps to get Guestly up and running locally:
 
 1. Clone the Repository
+
 git clone https://github.com/NikoloziGagua/guestly.git
+
 cd guestly
 
 2. Create Virtual Environment and Install Dependencies
+
 python -m venv venv
-source venv/bin/activate   # On Windows: venv\Scripts\activate
+
+on mac or linux: source venv/bin/activate   
+On Windows: venv\Scripts\activate
+
 pip install -r requirements.txt
 
 3. Apply Migrations
-python manage.py makemigrations
+
+python manage.py makemigrations~
+
 python manage.py migrate
 
 4. Run the Development Server
+
 python manage.py runserver
 
 Visit http://127.0.0.1:8000/users/users/main in your browser.
