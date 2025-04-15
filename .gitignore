@@ -8,7 +8,6 @@ __pycache__/
 *.py[cod]
 *.swp
 .env
-media/
 staticfiles/
 
 # MySQL (ignore DB dumps)

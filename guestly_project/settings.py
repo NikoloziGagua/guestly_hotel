@@ -157,3 +157,4 @@ ROLE_SALARY_RATES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # for production, optional
 DEVELOPER_MODE = True  # set to False for normal authentication behavior
+LOGIN_URL = '/users/users/login/'

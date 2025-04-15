@@ -7,17 +7,16 @@ from django.db import models
 
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
-        ('guest', 'Guest'),
-        ('receptionist', 'Receptionist'),
-        ('housekeeping', 'Housekeeping'),
         ('manager', 'Manager'),
-        ('room_service', 'Room Service'),
+        ('receptionist', 'Receptionist'), 
+        ('housekeeping', 'Housekeeping'),
+        ('guest', 'Guest'),
     ]
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-
-    def __str__(self):
-        return self.username
+    role = models.CharField(
+        max_length=20,
+        choices=ROLE_CHOICES,
+        default='guest'  # This is just the default, form selection should override
+    )
 
     # ---------------------------
     # Helper methods for role checking

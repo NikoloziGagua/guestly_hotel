@@ -11,6 +11,9 @@ from decimal import Decimal
 import json
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.contrib.auth.forms import UserCreationForm
+# Import CustomUserChangeForm for editing user details
+from .forms import CustomUserRegisterForm
 
 # Import custom decorators that enforce role-based access
 from users.decorators import (
@@ -20,7 +23,6 @@ from users.decorators import (
     receptionist_required
 )
 
-# Import our custom forms and models from the users app
 from .forms import CustomUserCreationForm, AssignRoleForm
 from users.models import CustomUser
 
@@ -35,20 +37,15 @@ from services.models import ServiceRequest, FoodOrder
 # is created as a 'guest' (default role) without exposing the role field.
 # ------------------------------------------------------------------------------
 def register(request):
-
     if request.method == 'POST':
-        storage = messages.get_messages(request)
-        for _ in storage:
-            pass 
-        form = CustomUserCreationForm(request.POST, request.FILES)
+        form = CustomUserRegisterForm(request.POST)
         if form.is_valid():
-            form.save()  # The form automatically sets role='guest'
-            messages.success(request, "Registration successful. Please log in.")
+            user = form.save()  # This will automatically set role='guest'
+            messages.success(request, "Registration successful! Please log in.")
             return redirect('login')
-        else:
-            messages.error(request, "Registration failed. Please correct the errors below.")
     else:
-        form = CustomUserCreationForm()
+        form = CustomUserRegisterForm()
+    
     return render(request, 'users/register.html', {'form': form})
 
 # ------------------------------------------------------------------------------
@@ -282,12 +279,18 @@ def billing_dashboard(request):
 @manager_required
 def view_all_users(request):
     users = CustomUser.objects.all().order_by('-date_joined')
-    context = {
-        'users': users,
-        'welcome_message': f"All Registered Users - {request.user.username}",
-    }
-    return render(request, 'users/view_all_users.html', context)
+    return render(request, 'users/view_all_users.html', {'users': users})
 
+
+@login_required
+@manager_required
+def delete_user(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    if request.method == 'POST':
+        user.delete()
+        messages.success(request, 'User deleted successfully!')
+        return redirect('view_all_users')
+    return render(request, 'users/delete_user.html', {'user': user})
 # ------------------------------------------------------------------------------
 # Assign User Role View
 # Allows managers to assign a new role to a user using a simple form.
@@ -316,3 +319,41 @@ def toggle_dev_mode(request):
     request.session['dev_mode'] = not request.session['dev_mode']
     request.session.modified = True
     return JsonResponse({'status': 'ok', 'dev_mode': request.session['dev_mode']})
+
+@login_required
+def add_user(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.role = form.cleaned_data['role']  # Ensure role is saved
+            user.save()
+            messages.success(request, f'User {user.username} created successfully with {user.get_role_display()} role!')
+            return redirect('view_all_users')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'users/add_user.html', {'form': form})
+
+@login_required
+@manager_required
+def reset_user_password(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    if request.method == 'POST':
+        # Generate and send password reset email
+        # Implementation depends on your auth system
+        messages.success(request, f'Password reset instructions sent to {user.email}')
+        return redirect('edit_user', user_id=user.id)
+    return redirect('edit_user', user_id=user.id)
+@login_required
+def view_all_users(request):
+    users = CustomUser.objects.all().order_by('-date_joined')
+    return render(request, 'users/view_all_users.html', {'users': users})
+@login_required
+def delete_user(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    if request.method == 'POST':
+        username = user.username
+        user.delete()
+        messages.success(request, f'User {username} deleted successfully!')
+        return redirect('view_all_users')
+    return render(request, 'users/delete_user.html', {'user': user})

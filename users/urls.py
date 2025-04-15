@@ -25,6 +25,9 @@ urlpatterns = [
     # URL for marking a room as cleaned by housekeeping
     path('booking/<int:booking_id>/', views.booking_detail, name='booking_detail'),
     path('manager/bookings/', views.view_all_bookings, name='view_all_bookings'),
+    path('users/delete/<int:user_id>/', views.delete_user, name='delete_user'),
+    path('users/add/', views.add_user, name='add_user'),
+
 
     # URL for viewing all service users
     path('manager/users/', views.view_all_users, name='view_all_users'),
