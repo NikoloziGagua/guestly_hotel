@@ -1,3 +1,4 @@
+from venv import logger
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -12,35 +13,29 @@ from payments.models import SalaryRate, SalaryRecord
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 
-
 @login_required
 def mark_room_cleaned(request, room_id):
-    print("🔵 Entering mark_room_cleaned view")
     room = get_object_or_404(Room, id=room_id)
-
+    
     if room.status == 'needs_cleaning':
-        room.status = 'available'
-        room.dirty_since = None
-        room.save()
-        messages.success(request, f"Room {room.room_number} cleaned and available.")
-        print("✅ Room marked as cleaned")
+        room.mark_as_cleaned()
+        messages.success(request, f"Room {room.room_number} marked as clean")
 
-        rate_obj = SalaryRate.objects.filter(role='housekeeping').first()
-        if rate_obj:
+        try:
+            rate = SalaryRate.objects.get(role='housekeeping')
             SalaryRecord.objects.create(
                 role='housekeeping',
-                amount=rate_obj.rate,
+                amount=rate.rate,
                 description=f"Cleaned room {room.room_number}"
             )
-            print("💰 Salary recorded for housekeeping cleaning")
-        else:
-            print("❌ No SalaryRate found for housekeeping cleaning")
+        except SalaryRate.DoesNotExist:
+            messages.warning(request, "Cleaning recorded but salary rate not configured")
     else:
-        messages.error(request, f"Room {room.room_number} isn't marked as needing cleaning.")
-        print("⚠️ Cleaning failed: room not marked as needing cleaning")
-
-
+        messages.error(request, f"Room {room.room_number} doesn't need cleaning")
+    
     return redirect('housekeeping_dashboard')
+
+
 
 # ------------------------------------------------------------------------------  
 # --------------------- ROOM SERVICE TASKS -------------------------------------  
@@ -50,20 +45,23 @@ def mark_room_cleaned(request, room_id):
 def update_food_order_status(request, order_id, new_status):
     order = get_object_or_404(FoodOrder, id=order_id)
     
+    # Handle different status updates for food orders
     if new_status == 'preparing':
-        order.mark_as_preparing()  # Delegate to model method
+        order.mark_as_preparing()  # Use model method to update status
         messages.success(request, f"Order #{order.id} updated to preparing.")
     elif new_status == 'delivered':
-        order.mark_as_delivered()  # Delegate to model method
+        order.mark_as_delivered()  # Use model method to update delivery status
         messages.success(request, f"Order #{order.id} updated to delivered.")
     else:
         messages.error(request, "Invalid status update requested.")
         return redirect('room_service_dashboard')
     
-    # If the current user is room service, create a salary record for updating order status
+    # Create salary record for room service staff when they update orders
     if request.user.role == 'room_service':
         try:
+            # Get the predefined salary rate for room service staff
             rate_obj = SalaryRate.objects.get(role='room_service')
+            # Create a new salary record for this task
             SalaryRecord.objects.create(
                 role='room_service',
                 amount=rate_obj.rate,
@@ -78,25 +76,46 @@ def update_food_order_status(request, order_id, new_status):
 @login_required
 @require_POST
 def housekeeping_complete_service_request(request, request_id):
-    service_request = get_object_or_404(ServiceRequest, id=request_id)
+    try:
+        service_request = get_object_or_404(ServiceRequest, id=request_id)
+        
+        # Verify it's a cleaning request
+        if service_request.request_type != 'cleaning':
+            return JsonResponse({
+                "status": "error",
+                "message": "Invalid request type"
+            }, status=400)
 
-    if service_request.request_type != 'cleaning':
-        return JsonResponse({"error": "Invalid request type."}, status=400)
+        service_request.mark_as_completed()
+        service_request.save()
 
-    # Mark request as completed
-    service_request.status = 'completed'
-    service_request.save()
+        # Salary recording
+        try:
+            rate_obj = SalaryRate.objects.get(role='housekeeping')
+            SalaryRecord.objects.create(
+                role='housekeeping',
+                amount=rate_obj.rate,
+                description=f"Completed cleaning request #{service_request.id}"
+            )
+        except SalaryRate.DoesNotExist:
+            logger.error("Housekeeping salary rate not configured")
+            return JsonResponse({
+                "status": "error",
+                "message": "Salary configuration error"
+            }, status=500)
 
-    # Record housekeeping salary
-    rate_obj = SalaryRate.objects.filter(role='housekeeping').first()
-    if rate_obj:
-        SalaryRecord.objects.create(
-            role='housekeeping',
-            amount=rate_obj.rate,
-            description=f"Completed cleaning request #{service_request.id}"
-        )
+        return JsonResponse({
+            "status": "success",
+            "message": "Cleaning request completed successfully",
+            "request_id": request_id
+        })
 
-    return JsonResponse({"message": f"Cleaning request #{service_request.id} marked as completed."})                                            
+    except Exception as e:
+        logger.error(f"Error completing request: {str(e)}")
+        return JsonResponse({
+            "status": "error",
+            "message": "Internal server error"
+        }, status=500)                                      
 def update_service_request_status(request, request_id, new_status):
     service_request = get_object_or_404(ServiceRequest, id=request_id)
     if new_status in ['in_progress', 'completed', 'cancelled']:
@@ -108,7 +127,6 @@ def update_service_request_status(request, request_id, new_status):
             service_request.mark_as_cancelled()
         messages.success(request, f"Service Request #{service_request.id} updated to {new_status}.")
         
-        # If the user is room service, create a salary record for the update
         if request.user.role == 'room_service':
             try:
                 rate_obj = SalaryRate.objects.get(role='room_service')
@@ -126,27 +144,38 @@ def update_service_request_status(request, request_id, new_status):
 
 
 @login_required
-@require_POST  # Ensure this view only handles POST requests
+@require_POST  
 def complete_service_request_ajax(request, request_id):
-    # Check that only room service can complete the task
-    if request.user.role != 'room_service':
-        return JsonResponse({"error": "Access denied."}, status=403)
-    
-    service_request = get_object_or_404(ServiceRequest, id=request_id)
-    service_request.mark_as_completed()  # Update status using model method
-
     try:
+        service_request = get_object_or_404(ServiceRequest, id=request_id)
+        service_request.mark_as_completed()
+        
+        # Debug print
+        print(f"Marked request {request_id} as completed")
+        
         rate_obj = SalaryRate.objects.get(role='room_service')
         SalaryRecord.objects.create(
             role='room_service',
             amount=rate_obj.rate,
-            description=f"Completed service request #{service_request.id} ({service_request.get_request_type_display()})"
+            description=f"Completed service request #{service_request.id}"
         )
+        
+        return JsonResponse({
+            "status": "success",
+            "message": "Task Completed",
+            "request_id": request_id
+        }, status=200)
+        
     except SalaryRate.DoesNotExist:
-        return JsonResponse({"error": "No salary rate found for room service. Please contact admin."}, status=500)
-    
-    return JsonResponse({"message": "Task Completed"})
-
+        return JsonResponse({
+            "status": "error",
+            "message": "Salary rate not configured"
+        }, status=500)
+    except Exception as e:
+        return JsonResponse({
+            "status": "error",
+            "message": str(e)
+        }, status=500)
 
 @login_required
 def cancel_service_request(request, request_id):
@@ -166,9 +195,6 @@ def cancel_service_request(request, request_id):
 
 
 
-# ------------------------------------------------------------------------------  
-# --------------------- DASHBOARD VIEWS (unchanged for salary) ----------------  
-# ------------------------------------------------------------------------------
 
 @login_required
 @cache_page(300)
@@ -238,37 +264,18 @@ def create_general_service_request(request, room_number):
 
 
 @login_required
+@room_service_required
 def pending_service_requests(request):
-    if request.user.role != 'room_service':
-        messages.error(request, "Access denied. Only room service staff can view service requests.")
-        return redirect('guest_dashboard')
-    
     # For room service, exclude cleaning requests (they go to housekeeping)
     pending_requests = ServiceRequest.objects.filter(status='pending').exclude(request_type='cleaning')
     context = {'pending_requests': pending_requests}
     return render(request, 'services/pending_service_requests.html', context)
 
 
+
+
 @login_required
 @room_service_required
-def room_service_dashboard(request):
-    if request.user.role != 'room_service':
-        messages.error(request, "Access denied. You are not authorized to view the Room Service Dashboard.")
-        return redirect('guest_dashboard')
-    
-    food_orders = FoodOrder.objects.filter(status__in=['pending', 'preparing']).order_by('-ordered_at')
-    # For room service, exclude cleaning requests
-    general_requests = ServiceRequest.objects.filter(status='pending').exclude(request_type='cleaning').order_by('-created_at')
-    
-    context = {
-        'welcome_message': f"Room Service Dashboard: {request.user.username}",
-        'orders': food_orders,
-        'service_requests': general_requests,
-    }
-    return render(request, 'users/room_service_dashboard.html', context)
-
-
-@login_required
 def room_service_requests_dashboard(request):
     requests_qs = ServiceRequest.objects.filter(status__in=['pending', 'in_progress']).exclude(request_type='cleaning')
     context = {

@@ -1,12 +1,16 @@
 {% extends "users/base.html" %}
 {% block content %}
+<!-- Main container for all bookings -->
 <div class="container py-4">
     <div class="card border-0 shadow-sm">
+        <!-- Card header with title -->
         <div class="card-header bg-primary text-white">
             <h2 class="h5 mb-0"><i class="fas fa-calendar-alt me-2"></i>All Bookings</h2>
         </div>
+        <!-- Card body with bookings table -->
         <div class="card-body p-4">
             {% if bookings %}
+            <!-- Responsive bookings table -->
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead class="bg-light">
@@ -39,6 +43,7 @@
                 </table>
             </div>
             {% else %}
+            <!-- Empty state display -->
             <div class="text-center py-5">
                 <i class="fas fa-calendar-times text-muted mb-3" style="font-size: 2.5rem;"></i>
                 <h4 class="h5">No Bookings Found</h4>

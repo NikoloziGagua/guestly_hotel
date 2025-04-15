@@ -8,6 +8,10 @@ from django.contrib.auth.forms import UserCreationForm
 
 
 class CustomUserCreationForm(UserCreationForm):
+    """
+    Extended user creation form that includes role selection.
+    Used by staff members to create new users with specific roles.
+    """
     role = forms.ChoiceField(
         choices=CustomUser.ROLE_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'}),
@@ -23,7 +27,12 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
 class CustomUserRegisterForm(UserCreationForm):
+    """
+    Public registration form for new guests.
+    Automatically assigns 'guest' role and applies Bootstrap styling.
+    """
     class Meta:
         model = CustomUser
         fields = ['username', 'email', 'first_name', 'last_name', 'password1', 'password2']
@@ -41,6 +50,7 @@ class CustomUserRegisterForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
 class AssignRoleForm(forms.Form):
     user = forms.ModelChoiceField(queryset=CustomUser.objects.all())
     role = forms.ChoiceField(choices=CustomUser.ROLE_CHOICES)   
@@ -54,4 +64,4 @@ class CustomUserChangeForm(forms.ModelForm):
         user = super().save(commit=False)
         if commit:
             user.save()
-        return user 
+        return user

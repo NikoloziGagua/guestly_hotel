@@ -1,112 +1,165 @@
-z{% extends "users/base.html" %}
-{% block content %}
-<div class="container mt-4">
-    <h2>Room Service Dashboard</h2>
-    <p>{{ welcome_message }}</p>
-    
-    <!-- Display Food Orders -->
-    <h3>Food Orders</h3>
-    {% if orders %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Guest</th>
-                <th>Room</th>
-                <th>Ordered At</th>
-                <th>Status</th>
-                <th>Total Price</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for order in orders %}
-            <tr>
-                <td>{{ order.id }}</td>
-                <td>{{ order.guest.username }}</td>
-                <td>{{ order.room.room_number }}</td>
-                <td>{{ order.ordered_at|date:"M d, Y H:i" }}</td>
-                <td>{{ order.status }}</td>
-                <td>${{ order.total_price }}</td>
-                <td>
-                    {% if order.status == 'pending' %}
-                        <a href="{% url 'update_food_order_status' order.id 'preparing' %}" class="btn btn-sm btn-warning">Mark as Preparing</a>
-                    {% elif order.status == 'preparing' %}
-                        <a href="{% url 'update_food_order_status' order.id 'delivered' %}" class="btn btn-sm btn-success">Mark as Delivered</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>No food orders pending.</p>
-    {% endif %}
+{% extends "users/base.html" %}
+{% load static %}
 
-    <!-- Display General Service Requests -->
-    <h3 class="mt-5">General Service Requests</h3>
-    {% if service_requests %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Request ID</th>
-                <th>Guest</th>
-                <th>Room</th>
-                <th>Type</th>
-                <th>Requested At</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for req in service_requests %}
-            <tr id="service-row-{{ req.id }}">
-                <td>{{ req.id }}</td>
-                <td>{{ req.guest.username }}</td>
-                <td>{{ req.room.room_number }}</td>
-                <td>{{ req.get_request_type_display }}</td>
-                <td>{{ req.created_at|date:"M d, Y H:i" }}</td>
-                <td>{{ req.status }}</td>
-                <td>
-                    <button class="btn btn-sm btn-success" onclick="completeServiceRequest('{{ req.id }}')">
-                        Mark as Completed
-                    </button>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>No pending service requests.</p>
-    {% endif %}
+{% block content %}
+<div class="container-fluid dashboard-container">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2><i class="fas fa-concierge-bell"></i> Room Service Dashboard</h2>
+            <p class="text-muted">{{ welcome_message }} - Server Time: {{ current_time }}</p>
+        </div>
+    </div>
+
+    <div id="notification-area" class="text-center position-fixed start-50 translate-middle-x" style="top: 20px; z-index: 1000;"></div>
+
+    <div class="card mb-5">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="fas fa-utensils"></i> Pending Food Orders</h3>
+        </div>
+        <div class="card-body">
+            {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Guest</th>
+                            <th>Room</th>
+                            <th>Items</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>#{{ order.id }}</td>
+                            <td>{{ order.guest.get_full_name|default:order.guest.username }}</td>
+                            <td>{{ order.room.room_number }}</td>
+                            <td>
+                                {% for item in order.items.all %}
+                                <div>{{ item.quantity }} × {{ item.menu_item.name }}</div>
+                                {% endfor %}
+                            </td>
+                            <td><span class="badge bg-{% if order.status == 'pending' %}warning{% elif order.status == 'preparing' %}info{% else %}success{% endif %}">{{ order.status|title }}</span></td>
+                            <td>
+                                {% if order.status == 'pending' %}
+                                <a href="{% url 'update_food_order_status' order.id 'preparing' %}" class="btn btn-warning btn-sm"><i class="fas fa-clock"></i> Preparing</a>
+                                {% elif order.status == 'preparing' %}
+                                <a href="{% url 'update_food_order_status' order.id 'delivered' %}" class="btn btn-success btn-sm"><i class="fas fa-check"></i> Delivered</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info"><i class="fas fa-info-circle"></i> No pending food orders</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0"><i class="fas fa-hands-helping"></i> Service Requests</h3>
+        </div>
+        <div class="card-body">
+            {% if service_requests %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Request ID</th>
+                            <th>Guest</th>
+                            <th>Room</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in service_requests %}
+                        <tr id="service-row-{{ req.id }}">
+                            <td>#{{ req.id }}</td>
+                            <td>{{ req.guest.get_full_name|default:req.guest.username }}</td>
+                            <td>{{ req.room.room_number }}</td>
+                            <td>{{ req.get_request_type_display }}</td>
+                            <td><span class="badge bg-{% if req.status == 'pending' %}warning{% elif req.status == 'in_progress' %}primary{% else %}success{% endif %}">{{ req.status|title }}</span></td>
+                            <td><button class="btn btn-success btn-sm complete-service-btn" data-request-id="{{ req.id }}"><i class="fas fa-check-circle"></i> Complete</button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info"><i class="fas fa-info-circle"></i> No pending service requests</div>
+            {% endif %}
+        </div>
+    </div>
 </div>
 
 <script>
-    const csrfToken = "{{ csrf_token }}";
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.complete-service-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const requestId = this.dataset.requestId;
+            completeServiceRequest(requestId);
+        });
+    });
+});
 
-    function completeServiceRequest(requestId) {
-        const url = "{% url 'complete_service_request_ajax' 0 %}".replace("0", requestId);
-        fetch(url, {
+async function completeServiceRequest(requestId) {
+    const btn = document.querySelector(`.complete-service-btn[data-request-id="${requestId}"]`);
+    const row = document.getElementById(`service-row-${requestId}`);
+    if (!btn || !row) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing';
+
+    try {
+        const response = await fetch(`/services/room_service/request/complete/${requestId}/`, {
             method: "POST",
             headers: {
+                "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+                "Accept": "application/json",
                 "Content-Type": "application/json",
-                "X-CSRFToken": csrfToken
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                alert(data.message);
-                const row = document.getElementById("service-row-" + requestId);
-                if (row) row.remove();
-            } else if (data.error) {
-                alert("Error: " + data.error);
-            }
-        })
-        .catch(error => {
-            console.error("Error during AJAX call:", error);
-            alert("An error occurred. Please try again.");
+            },
         });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || 'Error');
+        showNotification(data.message || 'Task Completed', 'success');
+        row.style.opacity = 0;
+        setTimeout(() => row.remove(), 500);
+    } catch (error) {
+        showNotification(error.message || 'Request failed', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Complete';
     }
+}
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} alert-dismissible fade show text-center`;
+    notification.style.display = 'inline-block';
+    notification.innerHTML = `${message} <button class="btn-close" data-bs-dismiss="alert"></button>`;
+    
+    const area = document.getElementById('notification-area');
+    area.innerHTML = '';
+    area.appendChild(notification);
+    
+    setTimeout(() => notification.remove(), 3000);
+}
 </script>
+
+<style>
+.dashboard-container { padding: 20px; background-color: #f8f9fa; border-radius: 10px; }
+.card { border: none; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 30px; }
+.card-header { border-radius: 10px 10px 0 0 !important; }
+.table th { border-top: none; font-weight: 600; }
+.badge { font-weight: 500; padding: 5px 10px; font-size: 0.85rem; }
+#notification-area { width: 100%; }
+</style>
 {% endblock %}

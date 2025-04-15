@@ -2,68 +2,70 @@
 {% load static %}
 
 {% block content %}
+<!-- Full-height landing page container -->
 <div class="min-vh-100 d-flex align-items-center justify-content-center bg-light">
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-8 col-lg-6 text-center">
-        <!-- Logo and Heading -->
-        <div class="card border-0 shadow-sm animate-fade-in mb-4">
-          <div class="card-body p-4 p-md-5">
-            <div class="mb-4">
-              <i class="fas fa-hotel text-primary" style="font-size: 3rem;"></i>
-              <h1 class="display-5 fw-bold text-primary mt-3">Welcome to Guestly</h1>
-              <p class="lead text-muted">Your premium hotel experience</p>
-            </div>
-          </div>
-        </div>
+    <div class="container py-5">
+        <!-- Main content row -->
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-6 text-center">
+                <!-- Welcome card with hotel logo -->
+                <div class="card border-0 shadow-sm animate-fade-in mb-4">
+                    <div class="card-body p-4 p-md-5">
+                        <div class="mb-4">
+                            <i class="fas fa-hotel text-primary" style="font-size: 3rem;"></i>
+                            <h1 class="display-5 fw-bold text-primary mt-3">Welcome to Guestly</h1>
+                            <p class="lead text-muted">Your premium hotel experience</p>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Action Cards -->
-        <div class="row g-4 animate-fade-in" style="animation-delay: 0.3s;">
-          <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm-hover">
-              <div class="card-body p-4 text-center">
-                <i class="fas fa-sign-in-alt text-primary mb-3" style="font-size: 2rem;"></i>
-                <h3 class="h5 mb-3">Existing Users</h3>
-                <a href="{% url 'login' %}" class="btn btn-primary w-100 py-2">
-                  Login to Your Account
-                </a>
-              </div>
+                <!-- Action cards for login and registration -->
+                <div class="row g-4 animate-fade-in" style="animation-delay: 0.3s;">
+                    <!-- Login card -->
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm-hover">
+                            <div class="card-body p-4 text-center">
+                                <i class="fas fa-sign-in-alt text-primary mb-3" style="font-size: 2rem;"></i>
+                                <h3 class="h5 mb-3">Existing Users</h3>
+                                <a href="{% url 'login' %}" class="btn btn-primary w-100 py-2">
+                                    Login to Your Account
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Registration card -->
+                    <div class="col-md-6">
+                        <div class="card h-100 border-0 shadow-sm-hover">
+                            <div class="card-body p-4 text-center">
+                                <i class="fas fa-user-plus text-primary mb-3" style="font-size: 2rem;"></i>
+                                <h3 class="h5 mb-3">New Users</h3>
+                                <a href="{% url 'register' %}" class="btn btn-outline-primary w-100 py-2">
+                                    Create New Account
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card h-100 border-0 shadow-sm-hover">
-              <div class="card-body p-4 text-center">
-                <i class="fas fa-user-plus text-primary mb-3" style="font-size: 2rem;"></i>
-                <h3 class="h5 mb-3">New Users</h3>
-                <a href="{% url 'register' %}" class="btn btn-outline-primary w-100 py-2">
-                  Create New Account
-                </a>
-              </div>
-            </div>
-          </div>
         </div>
-
-        
-        </div>
-      </div>
     </div>
-  </div>
 </div>
 
+<!-- Animation and hover effect styles -->
 <style>
-  .animate-fade-in {
-    animation: fadeIn 0.8s ease-in-out;
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .shadow-sm-hover {
-    transition: all 0.3s ease;
-  }
-  .shadow-sm-hover:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
-    transform: translateY(-5px);
-  }
+    .animate-fade-in {
+        animation: fadeIn 0.8s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .shadow-sm-hover {
+        transition: all 0.3s ease;
+    }
+    .shadow-sm-hover:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+        transform: translateY(-5px);
+    }
 </style>
 {% endblock %}

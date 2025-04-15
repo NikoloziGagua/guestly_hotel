@@ -1,12 +1,17 @@
 {% extends "users/base.html" %}
 {% block content %}
+<!-- Main Container -->
 <div class="container py-4">
+    <!-- Analytics Card -->
     <div class="card border-0 shadow-sm">
+        <!-- Card Header -->
         <div class="card-header bg-primary text-white">
             <h2 class="h5 mb-0"><i class="fas fa-chart-line me-2"></i>Manager Analytics & Reports</h2>
         </div>
+
+        <!-- Reports Content -->
         <div class="card-body p-4">
-            <!-- Salary Data Section -->
+            <!-- Salary Analysis Section -->
             <div class="mb-5">
                 <h3 class="h5 mb-3 border-bottom pb-2"><i class="fas fa-money-check-alt me-2"></i>Salary Records Summary</h3>
                 {% if salary_data %}
@@ -37,10 +42,13 @@
                 {% endif %}
             </div>
 
-            <!-- Revenue Data Section -->
+            <!-- Revenue Analysis Section -->
             <div>
                 <h3 class="h5 mb-3 border-bottom pb-2"><i class="fas fa-chart-pie me-2"></i>Revenue Breakdown</h3>
+
+                <!-- Revenue Cards Grid -->
                 <div class="row">
+                    <!-- Room Revenue Card -->
                     <div class="col-md-6">
                         <div class="card bg-light border-0 mb-3">
                             <div class="card-body">
@@ -49,6 +57,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Food Revenue Card -->
                     <div class="col-md-6">
                         <div class="card bg-light border-0 mb-3">
                             <div class="card-body">
@@ -57,6 +67,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Service Revenue Card -->
                     <div class="col-md-6">
                         <div class="card bg-light border-0 mb-3">
                             <div class="card-body">
@@ -65,6 +77,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Profit Card -->
                     <div class="col-md-6">
                         <div class="card bg-light border-0 mb-3">
                             <div class="card-body">
@@ -73,6 +87,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Maintenance Cost Card -->
                     <div class="col-md-6">
                         <div class="card bg-light border-0">
                             <div class="card-body">

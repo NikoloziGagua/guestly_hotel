@@ -1,15 +1,12 @@
-# payments/models.py
 
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-# Define the staff roles eligible for task-based salary payments.
 ROLE_CHOICES = [
     ('receptionist', 'Receptionist'),
     ('housekeeping', 'Housekeeping'),
     ('room_service', 'Room Service'),
-    # Typically, 'guest' and 'manager' are not part of task-based payments.
 ]
 
 class SalaryRate(models.Model):

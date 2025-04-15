@@ -3,7 +3,9 @@
 
 {% block content %}
 <div class="container py-4">
+    <!-- Main booking details card -->
     <div class="card border-0 shadow-sm mb-4">
+        <!-- Header with room number -->
         <div class="card-header bg-primary text-white">
             <h2 class="h4 mb-0">
                 <i class="fas fa-calendar-alt me-2"></i>
@@ -11,6 +13,7 @@
             </h2>
         </div>
         <div class="card-body">
+            <!-- Booking and room information -->
             <div class="row mb-4">
                 <div class="col-md-6">
                     <h3 class="h5 mb-3">Booking Information</h3>
@@ -30,6 +33,7 @@
             </div>
 
             <div class="row">
+                <!-- Food orders section -->
                 <div class="col-md-6 mb-4">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-header bg-white">
@@ -68,6 +72,7 @@
                     </div>
                 </div>
 
+                <!-- Service requests section -->
                 <div class="col-md-6 mb-4">
                     <div class="card h-100 border-0 shadow-sm">
                         <div class="card-header bg-white">
@@ -108,6 +113,7 @@
                 </div>
             </div>
 
+            <!-- Billing summary section -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white">
                     <h3 class="h5 mb-0">
@@ -137,6 +143,7 @@
                 </div>
             </div>
 
+            <!-- Navigation buttons -->
             <div class="text-center mt-4">
                 <a href="{% url 'guest_dashboard' %}" class="btn btn-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Back to Dashboard

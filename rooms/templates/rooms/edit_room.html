@@ -1,7 +1,9 @@
 {% extends "users/base.html" %}
 {% block content %}
+<!-- Main container for room editing -->
 <div class="container py-4">
     <div class="card border-0 shadow-sm">
+        <!-- Page header -->
         <div class="card-header bg-primary text-white">
             <h2 class="h5 mb-0">
                 <i class="fas fa-edit me-2"></i>
@@ -9,8 +11,10 @@
             </h2>
         </div>
         <div class="card-body p-4">
+            <!-- Room editing form -->
             <form method="post" class="needs-validation" novalidate>
                 {% csrf_token %}
+                <!-- Form fields in a responsive grid -->
                 <div class="row g-3">
                     {% for field in form %}
                     <div class="col-md-6 mb-3">
@@ -27,6 +31,7 @@
                     </div>
                     {% endfor %}
                 </div>
+                <!-- Form action buttons -->
                 <div class="d-flex justify-content-between mt-4">
                     <a href="{% url 'room_management_home' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-left me-1"></i> Cancel

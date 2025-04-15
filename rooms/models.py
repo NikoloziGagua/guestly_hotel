@@ -3,6 +3,8 @@
 from django.db import models
 from django.utils import timezone
 
+# Core models for room management and booking functionality
+
 # Your existing choices...
 ROOM_STATUS_CHOICES = [
     ('available', 'Available'),
@@ -12,6 +14,7 @@ ROOM_STATUS_CHOICES = [
 ]
 
 class Room(models.Model):
+    """Model representing a hotel room and its current state."""
     room_number = models.CharField(max_length=10, unique=True)
     room_type = models.CharField(max_length=10, choices=[('single', 'Single'), ('double', 'Double'), ('suite', 'Suite')])
     price_per_night = models.DecimalField(max_digits=6, decimal_places=2)
@@ -19,7 +22,6 @@ class Room(models.Model):
     dirty_since = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        # Return a human-friendly description of the room.
         return f"Room {self.room_number} ({self.get_room_type_display()})"
 
     def mark_as_occupied(self):
@@ -27,7 +29,7 @@ class Room(models.Model):
         Mark this room as 'occupied' when a booking is processed.
         """
         self.status = 'occupied'
-        self.save()  # Save changes to the database
+        self.save()  
 
     def mark_as_needs_cleaning(self):
         """
@@ -35,7 +37,7 @@ class Room(models.Model):
         Typically called during check-out.
         """
         self.status = 'needs_cleaning'
-        self.dirty_since = timezone.now()  # Record the time when room became dirty
+        self.dirty_since = timezone.now()  
         self.save()
 
     def mark_as_cleaned(self):
@@ -45,10 +47,9 @@ class Room(models.Model):
         """
         if self.status == 'needs_cleaning':
             self.status = 'available'
-            self.dirty_since = None  # Clear the timestamp as the room is now clean
+            self.dirty_since = None  
             self.save()
 
-# rooms/models.py (continued)
 
 from django.conf import settings
 
@@ -60,6 +61,7 @@ BOOKING_STATUS_CHOICES = [
 ]
 
 class Booking(models.Model):
+    """Model representing a room booking and its lifecycle."""
     guest = models.ForeignKey(
         settings.AUTH_USER_MODEL, 
         on_delete=models.CASCADE,
@@ -77,7 +79,6 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        # Provides a summary of the booking with guest, room number, and check-in date.
         return f"Booking for {self.guest.username} in Room {self.room.room_number} on {self.check_in_date}"
 
     def calculate_total_price(self):
@@ -92,9 +93,9 @@ class Booking(models.Model):
         Process the booking by calculating the total price and updating the room status.
         This method centralizes the booking logic.
         """
-        self.total_price = self.calculate_total_price()  # Compute cost
-        self.save()  # Save booking details first
-        self.room.mark_as_occupied()  # Update the room status to reflect the new booking
+        self.total_price = self.calculate_total_price()  
+        self.save()  
+        self.room.mark_as_occupied()  
 
     def check_in(self):
         """
@@ -107,7 +108,7 @@ class Booking(models.Model):
             raise ValueError("Booking must be in 'reserved' state to check in.")
         self.status = 'checked_in'
         self.save()
-        self.room.mark_as_occupied()  # Room should be occupied during check-in
+        self.room.mark_as_occupied()  
 
     def check_out(self):
         """
@@ -120,4 +121,4 @@ class Booking(models.Model):
             raise ValueError("Booking must be checked in to check out.")
         self.status = 'checked_out'
         self.save()
-        self.room.mark_as_needs_cleaning()  # Room now needs cleaning after check-out
+        self.room.mark_as_needs_cleaning()

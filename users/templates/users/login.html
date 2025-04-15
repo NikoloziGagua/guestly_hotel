@@ -2,10 +2,14 @@
 {% load static %}
 
 {% block content %}
+<!-- Main container with vertical centering -->
 <div class="min-vh-100 d-flex align-items-center justify-content-center p-3">
+  <!-- Responsive column sizing -->
   <div class="col-12 col-md-8 col-lg-6 col-xl-4">
+    <!-- Login card with animation -->
     <div class="card shadow-lg animate-fade-in">
       <div class="card-body p-4 p-md-5">
+        <!-- Brand header section -->
         <div class="text-center mb-4">
           <div class="mb-3">
             <i class="fas fa-hotel text-primary" style="font-size: 2.5rem;"></i>
@@ -14,6 +18,7 @@
           <p class="text-muted mb-0">log in now</p>
         </div>
         
+        <!-- Error message display -->
         {% if form.errors %}
         <div class="alert alert-danger text-center mb-4 py-2">
           <i class="fas fa-exclamation-circle me-2"></i>
@@ -21,6 +26,7 @@
         </div>
         {% endif %}
         
+        <!-- Login form -->
         <form method="post" novalidate>
           {% csrf_token %}
           <div class="mb-3">
@@ -46,6 +52,7 @@
           </button>
         </form>
 
+        <!-- Footer links section -->
         <div class="text-center mt-4 pt-3 border-top">
           <p class="small text-muted mb-2">
             New to Guestly? 

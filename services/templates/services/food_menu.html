@@ -1,9 +1,12 @@
+<!-- Extends base template and loads static files -->
 {% extends "users/base.html" %}
 {% load static %}
 
 {% block content %}
+<!-- Main container for food menu display -->
 <div class="container py-4">
     <div class="card border-0 shadow-sm mb-4">
+        <!-- Menu header -->
         <div class="card-header bg-primary text-white">
             <h2 class="h4 mb-0">
                 <i class="fas fa-utensils me-2"></i>
@@ -11,6 +14,7 @@
             </h2>
         </div>
         <div class="card-body">
+            <!-- Conditional rendering of food items grid -->
             {% if food_items %}
             <div class="row">
                 {% for item in food_items %}
@@ -38,6 +42,7 @@
             </div>
             {% endif %}
             
+            <!-- Order button (only shown for active bookings) -->
             {% if active_booking and active_booking.room.room_number %}
             <div class="text-center mt-4">
                 <a href="{% url 'place_food_order' room_number=active_booking.room.room_number %}" class="btn btn-primary">

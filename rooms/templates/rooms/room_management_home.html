@@ -1,14 +1,18 @@
 {% extends "users/base.html" %}
 {% block content %}
+<!-- Main container for room management -->
 <div class="container py-4">
     <div class="card border-0 shadow-sm">
+        <!-- Header section -->
         <div class="card-header bg-primary text-white">
             <h2 class="h5 mb-0">
                 <i class="fas fa-door-open me-2"></i>
                 Room Management
             </h2>
         </div>
+        
         <div class="card-body p-4">
+            <!-- Add new room button -->
             <div class="d-grid gap-3 mb-4">
                 <a href="{% url 'add_room' %}" class="btn btn-success py-2">
                     <i class="fas fa-plus-circle me-2"></i> Add New Room
@@ -16,7 +20,9 @@
             </div>
             
             {% if rooms %}
+            <!-- Room listing table -->
             <div class="table-responsive">
+                <!-- Table headers -->
                 <table class="table table-hover">
                     <thead class="bg-light">
                         <tr>
@@ -28,6 +34,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <!-- Room entries with status indicators and action buttons -->
                         {% for room in rooms %}
                         <tr>
                             <td>{{ room.room_number }}</td>
@@ -57,6 +64,7 @@
                 </table>
             </div>
             {% else %}
+            <!-- Empty state display -->
             <div class="text-center py-5">
                 <i class="fas fa-door-closed text-muted mb-3" style="font-size: 2.5rem;"></i>
                 <h4 class="h5">No Rooms Available</h4>
@@ -64,6 +72,7 @@
             </div>
             {% endif %}
             
+            <!-- Navigation button -->
             <div class="mt-4 text-center">
                 <a href="{% url 'manager_control_panel' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left me-1"></i> Back to Dashboard

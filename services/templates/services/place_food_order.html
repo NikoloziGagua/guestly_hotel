@@ -1,14 +1,20 @@
+<!-- Extends the base template for consistent styling -->
 {% extends "users/base.html" %}
 {% block content %}
+<!-- Main container for food order form -->
 <div class="container py-4">
+    <!-- Card container with shadow effect -->
     <div class="card border-0 shadow-sm">
+        <!-- Header section with room information -->
         <div class="card-header bg-primary text-white">
             <h2 class="h5 mb-0">
                 <i class="fas fa-utensils me-2"></i>
                 Place Food Order for Room {{ room.room_number }}
             </h2>
         </div>
+        <!-- Form body with validation -->
         <div class="card-body p-4">
+            <!-- Food order form with CSRF protection -->
             <form method="post" class="needs-validation" novalidate>
                 {% csrf_token %}
                 <div class="row g-3">

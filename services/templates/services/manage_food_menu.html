@@ -1,9 +1,12 @@
+<!-- Extends base template and loads static files -->
 {% extends "users/base.html" %}
 {% load static %}
 
 {% block content %}
+<!-- Main container for food menu management -->
 <div class="container py-4">
     <div class="card border-0 shadow-sm mb-4">
+        <!-- Header with welcome message -->
         <div class="card-header bg-primary text-white">
             <h2 class="h4 mb-0">
                 <i class="fas fa-utensils me-2"></i>
@@ -12,6 +15,7 @@
             <p class="mb-0 small">{{ welcome_message }}</p>
         </div>
         <div class="card-body">
+            <!-- Action buttons for menu management -->
             <div class="d-flex justify-content-between mb-4">
                 <a href="{% url 'add_food_item' %}" class="btn btn-success">
                     <i class="fas fa-plus-circle me-1"></i> Add New Item
@@ -23,6 +27,7 @@
                 </div>
             </div>
 
+            <!-- Flash messages section -->
             {% if messages %}
             <div class="mb-4">
                 {% for message in messages %}
@@ -34,6 +39,7 @@
             </div>
             {% endif %}
 
+            <!-- Food items table with conditional rendering -->
             {% if food_items %}
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -90,6 +96,7 @@
     </div>
 </div>
 
+<!-- Custom styles for interactive elements -->
 <style>
     .img-thumbnail {
         transition: transform 0.3s ease;

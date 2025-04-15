@@ -2,9 +2,11 @@
 {% load static %}
 
 {% block content %}
+<!-- Main booking container -->
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-8">
+            <!-- Room information card -->
             <!-- Booking Header Card -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-primary text-white">
@@ -36,12 +38,14 @@
                 </div>
             </div>
 
-            <!-- Booking Form Card -->
+            <!-- Booking form card -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
+                    <!-- Booking submission form -->
                     <form method="post" class="needs-validation" novalidate>
                         {% csrf_token %}
                         
+                        <!-- Form fields in responsive grid -->
                         <div class="row g-3">
                             {% for field in form %}
                             <div class="col-md-6 mb-3">
@@ -59,6 +63,7 @@
                             {% endfor %}
                         </div>
 
+                        <!-- Form action buttons -->
                         <div class="d-flex justify-content-between mt-4">
                             <a href="{% url 'room_list' %}" class="btn btn-outline-secondary">
                                 <i class="fas fa-arrow-left me-1"></i> Back to Rooms
@@ -74,6 +79,7 @@
     </div>
 </div>
 
+<!-- Custom form styles -->
 <style>
     .form-control, .form-select {
         border: 1px solid #e0e6ed;

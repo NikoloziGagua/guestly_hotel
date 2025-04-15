@@ -1,12 +1,17 @@
+<!-- Extends the base template -->
 {% extends "users/base.html" %}
 {% block content %}
+<!-- Container for adding new food items -->
 <div class="container mt-4">
+    <!-- Form title -->
     <h2>Add New Food Item</h2>
+    <!-- Form with file upload capability -->
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit" class="btn btn-success">Add Food Item</button>
     </form>
+    <!-- Navigation button -->
     <a href="{% url 'manage_food_menu' %}" class="btn btn-secondary mt-3">Back to Food Menu Management</a>
 </div>
 {% endblock %}

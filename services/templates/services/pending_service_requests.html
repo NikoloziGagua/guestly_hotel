@@ -1,7 +1,10 @@
+<!-- Extends the base template -->
 {% extends "users/base.html" %}
 {% block content %}
+<!-- Main container for pending requests -->
 <div class="container py-4">
     <div class="card border-0 shadow-sm">
+        <!-- Header section -->
         <div class="card-header bg-primary text-white">
             <h2 class="h5 mb-0">
                 <i class="fas fa-clock me-2"></i>
@@ -9,7 +12,9 @@
             </h2>
         </div>
         <div class="card-body p-4">
+            <!-- Conditional rendering based on pending requests -->
             {% if pending_requests %}
+            <!-- Responsive table for service requests -->
             <div class="table-responsive">
                 <table class="table table-hover">
                     <thead class="bg-light">
@@ -44,6 +49,7 @@
                 </table>
             </div>
             {% else %}
+            <!-- Empty state message when no requests exist -->
             <div class="text-center py-5">
                 <i class="fas fa-check-circle text-muted mb-3" style="font-size: 2.5rem;"></i>
                 <h4 class="h5">No Pending Requests</h4>

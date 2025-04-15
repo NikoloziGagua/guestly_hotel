@@ -5,38 +5,32 @@ from .forms import BookingForm, RoomForm
 from django.utils import timezone
 from django.contrib import messages 
 from users.decorators import manager_required
-from payments.models import SalaryRate, SalaryRecord  # Ensure these are imported
+from payments.models import SalaryRate, SalaryRecord  
 from users.decorators import receptionist_required, manager_required, housekeeping_required
-# ------------------------------------------------------------------------------
-# View: room_list
-# This view remains simple: it queries for available rooms and passes them
-# to the template. No business logic is needed here.
-# ------------------------------------------------------------------------------
+
 @login_required
 def room_list(request):
-    # Query all rooms that are available
+    """Display a list of all available rooms."""
     rooms = Room.objects.filter(status='available')
     context = {'rooms': rooms}
     return render(request, 'rooms/room_list.html', context)
 
-# ------------------------------------------------------------------------------
-# View: create_booking
-# This view handles booking creation. Instead of doing price calculations and
-# status updates here, it calls a model method (process_booking) that encapsulates
-# that logic.
-# ------------------------------------------------------------------------------#
-#login_required
+@login_required
 def create_booking(request, room_id):
+    """Create a new booking for a specific room.
+    
+    Args:
+        room_id (int): The ID of the room to be booked
+    """
     room = get_object_or_404(Room, id=room_id)
     if request.method == 'POST':
         form = BookingForm(request.POST)
         if form.is_valid():
-            # Create a booking instance without saving it immediately
             booking = form.save(commit=False)
-            booking.guest = request.user         # Associate booking with current user
-            booking.room = room                  # Link the booking to the selected room
-            booking.status = 'reserved'          # Set initial status
-            booking.process_booking()            # Delegate business logic to the model method
+            booking.guest = request.user         
+            booking.room = room                  
+            booking.status = 'reserved'          
+            booking.process_booking()            
 
             messages.success(request, "Booking created successfully.")
             return redirect('guest_dashboard')
@@ -46,21 +40,19 @@ def create_booking(request, room_id):
     context = {'form': form, 'room': room}
     return render(request, 'rooms/create_booking.html', context)
 
-# ------------------------------------------------------------------------------
-# View: cancel_booking
-# Cancelling a booking should simply update the booking and room statuses.
-# If you have a model method for cancellation, that would be even better.
-# Here, we check the state and then update the status.
-# ------------------------------------------------------------------------------
+
 @login_required
 def cancel_booking(request, booking_id):
+    """Cancel an existing booking if it's in reserved status.
+    
+    Args:
+        booking_id (int): The ID of the booking to cancel
+    """
     booking = get_object_or_404(Booking, id=booking_id, guest=request.user)
 
     if booking.status == 'reserved':
-        # Directly update booking status to 'cancelled'
         booking.status = 'cancelled'
         booking.save()
-        # Update room status; ideally, you could call a model method on room too
         room = booking.room
         room.status = 'available'
         room.save()
@@ -70,14 +62,10 @@ def cancel_booking(request, booking_id):
     
     return redirect('guest_dashboard')
 
-# ------------------------------------------------------------------------------
-# View: receptionist_dashboard
-# This view collects the current bookings (reserved and checked-in) and passes
-# them to the template. No changes needed as business logic is minimal.
-# ------------------------------------------------------------------------------
 @login_required
 @receptionist_required
 def receptionist_dashboard(request):
+    """Display the receptionist dashboard with current bookings."""
     current_bookings = Booking.objects.filter(status__in=['reserved', 'checked_in'])
     context = {
         'welcome_message': f"Receptionist Dashboard: {request.user.username}",
@@ -85,15 +73,17 @@ def receptionist_dashboard(request):
     }
     return render(request, "users/receptionist_dashboard.html", context)
 
-# ------------------------------------------------------------------------------
-# View: check_in_booking
-# Instead of manually setting statuses in the view, call a model method on booking.
-# ------------------------------------------------------------------------------
+
 
 @login_required
 @receptionist_required
-
 def check_in_booking(request, booking_id):
+    """Process guest check-in and update booking status.
+    Also records salary for the receptionist.
+    
+    Args:
+        booking_id (int): The ID of the booking to check in
+    """
     print("🔵 Check-In View Triggered")
     booking = get_object_or_404(Booking, id=booking_id)
     print("🔎 Booking status:", booking.status)
@@ -125,8 +115,13 @@ def check_in_booking(request, booking_id):
 
 @login_required
 @receptionist_required
-
 def check_out_booking(request, booking_id):
+    """Process guest check-out and mark room for cleaning.
+    Also records salary for the receptionist.
+    
+    Args:
+        booking_id (int): The ID of the booking to check out
+    """
     print("🔵 Check-Out View Triggered")
     booking = get_object_or_404(Booking, id=booking_id)
     print("🔎 Booking status:", booking.status)
@@ -156,20 +151,23 @@ def check_out_booking(request, booking_id):
 
     return redirect('receptionist_dashboard')
 
-# ------------------------------------------------------------------------------
-# View: mark_room_cleaned
-# Instead of updating the room directly in the view, call the mark_as_cleaned method.
-# ------------------------------------------------------------------------------
+
 @login_required
 @housekeeping_required
 def mark_room_cleaned(request, room_id):
+    """Mark a room as cleaned and available.
+    Records salary for housekeeping staff.
+    
+    Args:
+        room_id (int): The ID of the room to mark as cleaned
+    """
     room = get_object_or_404(Room, id=room_id)
     
     if room.status == 'needs_cleaning':
-        room.mark_as_cleaned()  # Use model method to update room status
+        room.mark_as_cleaned()  
         messages.success(request, f"Room {room.room_number} marked as clean and available.")
         
-        # If the user is housekeeping, log the salary record for cleaning
+        
         if request.user.role == 'housekeeping':
             try:
                 rate_obj = SalaryRate.objects.get(role='housekeeping')
@@ -185,13 +183,10 @@ def mark_room_cleaned(request, room_id):
     
     return redirect('housekeeping_dashboard')
 
-# ------------------------------------------------------------------------------
-# Manager-specific views below: they are straightforward, handling forms and
-# simple CRUD operations on Room objects.
-# ------------------------------------------------------------------------------
-@login_required#
+@login_required
 @manager_required
 def room_management_home(request):
+    """Display the room management dashboard for managers."""
     rooms = Room.objects.all().order_by('room_number')
     context = {'rooms': rooms}
     return render(request, 'rooms/room_management_home.html', context)
@@ -199,6 +194,7 @@ def room_management_home(request):
 @login_required
 @manager_required
 def add_room(request):
+    """Handle the creation of new rooms."""
     if request.method == 'POST':
         form = RoomForm(request.POST)
         if form.is_valid():
@@ -214,6 +210,11 @@ def add_room(request):
 @login_required
 @manager_required
 def edit_room(request, room_id):
+    """Handle the editing of existing rooms.
+    
+    Args:
+        room_id (int): The ID of the room to edit
+    """
     room = get_object_or_404(Room, id=room_id)
     if request.method == 'POST':
         form = RoomForm(request.POST, instance=room)
@@ -230,6 +231,11 @@ def edit_room(request, room_id):
 @login_required
 @manager_required
 def delete_room(request, room_id):
+    """Handle the deletion of rooms.
+    
+    Args:
+        room_id (int): The ID of the room to delete
+    """
     room = get_object_or_404(Room, id=room_id)
     room.delete()
     messages.success(request, "Room deleted successfully.")

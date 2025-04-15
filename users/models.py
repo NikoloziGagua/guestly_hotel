@@ -1,26 +1,27 @@
 # users/models.py
 
-# users/models.py
+# CustomUser model extends Django's built-in AbstractUser to add role-based functionality
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class CustomUser(AbstractUser):
+    # Define available roles in the system
     ROLE_CHOICES = [
-        ('manager', 'Manager'),
-        ('receptionist', 'Receptionist'), 
-        ('housekeeping', 'Housekeeping'),
-        ('guest', 'Guest'),
+        ('manager', 'Manager'),           # Has full system access
+        ('receptionist', 'Receptionist'), # Manages bookings and check-ins
+        ('housekeeping', 'Housekeeping'), # Handles room maintenance
+        ('guest', 'Guest'), 
+        ('room_service', 'Room_service')             # Regular hotel guest
     ]
+    
+    # Role field with guest as default
     role = models.CharField(
         max_length=20,
         choices=ROLE_CHOICES,
-        default='guest'  # This is just the default, form selection should override
+        default='guest'
     )
 
-    # ---------------------------
-    # Helper methods for role checking
-    # ---------------------------
     def is_guest(self):
         """Return True if the user is a guest."""
         return self.role == 'guest'
@@ -41,9 +42,6 @@ class CustomUser(AbstractUser):
         """Return True if the user is part of room service."""
         return self.role == 'room_service'
 
-    # ---------------------------
-    # Dashboard URL Helper
-    # ---------------------------
     def get_dashboard_url(self):
         """
         Returns the appropriate dashboard URL name based on the user's role.

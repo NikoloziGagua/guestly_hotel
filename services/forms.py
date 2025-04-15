@@ -1,5 +1,5 @@
 from django import forms
-from .models import FoodOrderItem
+from .models import GENERAL_SERVICE_CHOICES, FoodOrderItem
 from .models import ServiceRequest
 from .models import FoodItem
 
@@ -13,9 +13,11 @@ class FoodOrderItemForm(forms.ModelForm):
         fields = ['food_item', 'quantity']
 
 class ServiceRequestForm(forms.ModelForm):
-    """
-    Form for creating a general service request (non-food, e.g., extra towels, cleaning).
-    """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+        
+        
     class Meta:
         model = ServiceRequest
         fields = ['request_type', 'description']

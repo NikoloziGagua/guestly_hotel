@@ -12,10 +12,8 @@ import json
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib.auth.forms import UserCreationForm
-# Import CustomUserChangeForm for editing user details
 from .forms import CustomUserRegisterForm
-
-# Import custom decorators that enforce role-based access
+from django.utils import timezone
 from users.decorators import (
     room_service_required, 
     manager_required, 
@@ -26,16 +24,10 @@ from users.decorators import (
 from .forms import CustomUserCreationForm, AssignRoleForm
 from users.models import CustomUser
 
-# Import models from other apps for cross-functional views
 from rooms.models import Room, Booking
 from services.models import ServiceRequest, FoodOrder
-#import
 
-# ------------------------------------------------------------------------------
-# User Registration View
-# This view handles new user registration. The form ensures that every new user
-# is created as a 'guest' (default role) without exposing the role field.
-# ------------------------------------------------------------------------------
+
 def register(request):
     if request.method == 'POST':
         form = CustomUserRegisterForm(request.POST)
@@ -48,33 +40,23 @@ def register(request):
     
     return render(request, 'users/register.html', {'form': form})
 
-# ------------------------------------------------------------------------------
-# Role-Based Redirect View
-# Instead of manually checking the user's role here, we delegate the redirection
-# logic to the CustomUser model's get_dashboard_url() helper method.
-# ------------------------------------------------------------------------------
+
 @login_required
 def role_based_redirect(request):
     return redirect(request.user.get_dashboard_url())
 
-# ------------------------------------------------------------------------------
-# Guest Dashboard View
-# Displays the guest dashboard including active booking details, food orders,
-# service requests, and calculates room cost if the guest is checked in.
-# ------------------------------------------------------------------------------
+
 
 @login_required
 def guest_dashboard(request):
     user = request.user
     active_booking = Booking.objects.filter(guest=user, status='checked_in').first()
 
-    # If no active booking, get available rooms from cache (or query and cache the result)
     available_rooms = None
     if not active_booking:
         available_rooms = cache.get('available_rooms')
         if available_rooms is None:
             available_rooms = Room.objects.filter(status='available')
-            # Cache the available rooms query for 120 seconds (2 minutes)
             cache.set('available_rooms', available_rooms, 120)
     
     food_orders = FoodOrder.objects.filter(guest=user)
@@ -97,25 +79,17 @@ def guest_dashboard(request):
 
 
 
-# ------------------------------------------------------------------------------
-# Booking Detail View
-# Provides detailed information about a specific booking, including room cost,
-# associated food orders, service requests, and a billing summary.
-# ------------------------------------------------------------------------------
+
 @login_required
 def booking_detail(request, booking_id):
-    # Ensure the booking exists and belongs to the current user
     booking = get_object_or_404(Booking, id=booking_id, guest=request.user)
 
-    # Compute room cost based on booking duration and room price.
     nights = (booking.check_out_date - booking.check_in_date).days
     room_cost = nights * booking.room.price_per_night
 
-    # Retrieve food orders and service requests for this booking.
     food_orders = FoodOrder.objects.filter(guest=request.user, room=booking.room)
     service_requests = ServiceRequest.objects.filter(guest=request.user, room=booking.room)
 
-    # Compute costs: sum up food order totals and service request costs.
     food_cost = sum(order.total_price for order in food_orders)
     service_cost = sum(req.cost for req in service_requests)
     total_cost = room_cost + food_cost + service_cost
@@ -131,11 +105,7 @@ def booking_detail(request, booking_id):
     }
     return render(request, "users/booking_detail.html", context)
 
-# ------------------------------------------------------------------------------
-# Receptionist Dashboard View
-# Displays all current bookings that are either reserved or checked in,
-# enabling the receptionist to process check-in and check-out actions.
-# ------------------------------------------------------------------------------
+
 @login_required
 @receptionist_required
 def receptionist_dashboard(request):
@@ -146,54 +116,68 @@ def receptionist_dashboard(request):
     }
     return render(request, "users/receptionist_dashboard.html", context)
 
-# ------------------------------------------------------------------------------
-# Housekeeping Dashboard View
-# Displays rooms that need cleaning and any pending service requests.
-# ------------------------------------------------------------------------------
+
 
 @login_required
 @housekeeping_required
 def housekeeping_dashboard(request):
-    # Retrieve rooms that need cleaning (e.g., those marked as 'needs_cleaning')
-    rooms_needing_cleaning = Room.objects.filter(status='needs_cleaning')
+    # Get rooms needing cleaning
+    rooms_needing_cleaning = Room.objects.filter(status='needs_cleaning').order_by('room_number')
     
-    # Retrieve only service requests for cleaning (i.e., request_type equals 'cleaning') that are pending
-    cleaning_requests = ServiceRequest.objects.filter(status='pending', request_type='cleaning')
+    # Get cleaning requests
+    cleaning_requests = ServiceRequest.objects.filter(
+        request_type='cleaning',
+        status__in=['pending', 'in_progress']
+    ).select_related('room').order_by('created_at')
     
     context = {
         'rooms_needing_cleaning': rooms_needing_cleaning,
         'cleaning_requests': cleaning_requests,
-        
     }
     return render(request, 'users/housekeeping_dashboard.html', context)
+@login_required
+def room_service_dashboard(request):
+    
+    # Get pending food orders (excluding completed/canceled)
+    food_orders = FoodOrder.objects.exclude(
+        status__in=['delivered', 'canceled']
+    ).select_related('guest', 'room').order_by('ordered_at')
+    
+    # Get service requests (excluding cleaning and completed)
+    service_requests = ServiceRequest.objects.exclude(
+        request_type='cleaning'
+    ).exclude(
+        status='completed'
+    ).select_related('guest', 'room').order_by('created_at')
+    
+    context = {
+        'welcome_message': f"Welcome, {request.user.get_full_name() or request.user.username}",
+        'orders': food_orders,
+        'service_requests': service_requests,
+        'current_time': timezone.now().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+    return render(request, 'users/room_service_dashboard.html', context)
 
 
 
-# ------------------------------------------------------------------------------
-# Manager Control Panel View
-# Aggregates data from rooms, bookings, users, food orders, and service requests
-# to provide a comprehensive overview for managers.
-# ------------------------------------------------------------------------------
 
 
 @login_required
 @manager_required
 def manager_control_panel(request):
-    # Cache stable data: rooms and users (rooms and user lists likely change less frequently)
     rooms = cache.get('stable_rooms')
     if rooms is None:
         rooms = Room.objects.all()
-        cache.set('stable_rooms', rooms, 300)  # cache for 5 minutes
+        cache.set('stable_rooms', rooms, 300)  
 
     users = cache.get('stable_users')
     if users is None:
         users = CustomUser.objects.all()
-        cache.set('stable_users', users, 300)  # cache for 5 minutes
+        cache.set('stable_users', users, 300)  
 
-    # Fetch dynamic data directly (since they change quickly)
     bookings = Booking.objects.all().order_by('-check_in_date')
-    food_orders = FoodOrder.objects.all()  # dynamic, fetched fresh
-    service_requests = ServiceRequest.objects.all()  # dynamic, fetched fresh
+    food_orders = FoodOrder.objects.all()  
+    service_requests = ServiceRequest.objects.all()  
 
     context = {
         "welcome_message": f"Manager Control Panel: {request.user.username}",
@@ -213,16 +197,14 @@ def manager_reports(request):
       - Revenue data: Total revenue from room bookings, food orders, and service requests.
       - Profit calculation: 75% of room revenue is profit, while 25% is allocated for maintenance.
     """
-    # Aggregate salary data (group by role)
+    
     salary_data = SalaryRecord.objects.values('role').annotate(
         total_tasks=Count('id'),
         total_amount=Sum('amount')
     )
 
-    # Total room revenue (assumed that Booking.total_price is stored in the DB)
     room_revenue = Booking.objects.aggregate(total=Sum('total_price'))['total'] or Decimal('0.00')
 
-    # Compute food revenue using an annotation because FoodOrder.total_price is a property.
     computed_food_orders = FoodOrder.objects.annotate(
         computed_total=Sum(
             ExpressionWrapper(
@@ -233,10 +215,8 @@ def manager_reports(request):
     )
     food_revenue = computed_food_orders.aggregate(total=Sum('computed_total'))['total'] or 0
 
-    # Total service revenue from service requests (if cost is applied)
     service_revenue = ServiceRequest.objects.aggregate(total=Sum('cost'))['total'] or 0
 
-    # Compute profit and maintenance cost from room revenue
     profit = room_revenue * Decimal('0.75')
     maintenance_cost = room_revenue * Decimal('0.25')
 
@@ -250,10 +230,7 @@ def manager_reports(request):
         'welcome_message': f"Manager Analytics & Reports - {request.user.username}",
     }
     return render(request, 'users/manager_reports.html', context)
-# ------------------------------------------------------------------------------
-# View All Bookings (Manager Use)
-# Displays a comprehensive list of all bookings with related guest and room data.
-# ------------------------------------------------------------------------------
+
 @login_required
 @manager_required
 def view_all_bookings(request):
@@ -264,17 +241,11 @@ def view_all_bookings(request):
     }
     return render(request, 'users/view_all_bookings.html', context)
 
-# ------------------------------------------------------------------------------
-# Billing Dashboard and Manager Reports (Placeholders)
-# These are placeholders for future functionality.
-# ------------------------------------------------------------------------------
+
 def billing_dashboard(request):
     return HttpResponse("Billing dashboard will go here.")
 
-# ------------------------------------------------------------------------------
-# View All Users (Manager Use)
-# Displays a list of all registered users for managerial oversight.
-# ------------------------------------------------------------------------------
+
 @login_required
 @manager_required
 def view_all_users(request):
@@ -291,10 +262,7 @@ def delete_user(request, user_id):
         messages.success(request, 'User deleted successfully!')
         return redirect('view_all_users')
     return render(request, 'users/delete_user.html', {'user': user})
-# ------------------------------------------------------------------------------
-# Assign User Role View
-# Allows managers to assign a new role to a user using a simple form.
-# ------------------------------------------------------------------------------
+
 @login_required
 @manager_required
 def assign_user_role(request):
@@ -326,7 +294,7 @@ def add_user(request):
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.role = form.cleaned_data['role']  # Ensure role is saved
+            user.role = form.cleaned_data['role']  
             user.save()
             messages.success(request, f'User {user.username} created successfully with {user.get_role_display()} role!')
             return redirect('view_all_users')
@@ -339,8 +307,6 @@ def add_user(request):
 def reset_user_password(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
     if request.method == 'POST':
-        # Generate and send password reset email
-        # Implementation depends on your auth system
         messages.success(request, f'Password reset instructions sent to {user.email}')
         return redirect('edit_user', user_id=user.id)
     return redirect('edit_user', user_id=user.id)
