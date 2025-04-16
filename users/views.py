@@ -404,15 +404,3 @@ def view_all_users(request):
     users = CustomUser.objects.all().order_by('-date_joined')
     return render(request, 'users/view_all_users.html', {'users': users})
 @login_required
-def delete_user(request, user_id):
-    """
-    Handle user deletion with confirmation step.
-    Restricted to manager role.
-    """
-    user = get_object_or_404(CustomUser, id=user_id)
-    if request.method == 'POST':
-        username = user.username
-        user.delete()
-        messages.success(request, f'User {username} deleted successfully!')
-        return redirect('view_all_users')
-    return render(request, 'users/delete_user.html', {'user': user})
