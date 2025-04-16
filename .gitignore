@@ -29,6 +29,7 @@ db.sqlite3
 
 
 # Ignore all migrations in any app
-*.migrations/*
+*/migrations/
+*/migrations/*
 
 
