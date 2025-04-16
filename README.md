@@ -2,6 +2,9 @@
 
 Guestly is a Django-based hotel management system designed to model hospitality operations. It supports role-based workflows for guests, receptionists, housekeeping, and managers, covering booking, check-in, room service, cleaning, and staff payment management.
 
+**Recomemded to read intro_to_guestly bfore this file**
+----
+
 ## Features
 
 ### 👤 Guest
