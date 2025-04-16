@@ -37,10 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'users',  # ← This registers our custom app
-    'rooms',  # ← This registers our custom app
-    'services',  # ← This registers our custom app
-    'payments',  # Add your payments app here
+    'users',  # ←  registers custom app
+    'rooms',  # ←  registers  custom app
+    'services',  # ←  registers  custom app
+    'payments',  # register custom app
     
 ]
 
@@ -88,10 +88,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # We're now using MySQL
-        'NAME': 'guestly_db',                  # Name of the database you just created
+        'ENGINE': 'django.db.backends.mysql',  # W using MySQL
+        'NAME': 'guestly_db',                  # Name of the database 
         'USER': 'root',                        # root
-        'PASSWORD': 'J24nVeAcX!',     # Your MySQL password
+        'PASSWORD': 'J24nVeAcX!',              #  MySQL password
         'HOST': 'localhost',                   # Localhost since it's running locally
         'PORT': '3306',                        # Default MySQL port
         'OPTIONS': {
@@ -141,20 +141,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-AUTH_USER_MODEL = 'users.CustomUser'  # Tell Django to use the CustomUser model from the users app
+AUTH_USER_MODEL = 'users.CustomUser'  # Tell Django to use the CustomUser model  app
 LOGIN_REDIRECT_URL = '/users/dashboard/'
-ROLE_SALARY_RATES = {
-    # For example, housekeeping gets $5 per room cleaned,
-    # room_service gets $3 per food order delivered,
-    # receptionist gets $2 per check-in/out processed,
-    # manager has a fixed monthly salary (bonus structure could be added later).
-    'housekeeping': 5.00,       # $5 per room cleaned
-    'room_service': 3.00,       # $3 per food order delivered
-    'receptionist': 2.00,       # $2 per check-in or check-out
-    'manager': 2000.00,         # Fixed monthly base salary
-    # Note: Guests do not have a salary.
-}
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # for production, optional
-DEVELOPER_MODE = True  # set to False for normal authentication behavior
+STATIC_ROOT = BASE_DIR / 'staticfiles'  
+DEVELOPER_MODE = True  
 LOGIN_URL = '/users/users/login/'

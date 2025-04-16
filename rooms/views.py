@@ -118,9 +118,7 @@ def check_in_booking(request, booking_id):
 def check_out_booking(request, booking_id):
     """Process guest check-out and mark room for cleaning.
     Also records salary for the receptionist.
-    
-    Args:
-        booking_id (int): The ID of the booking to check out
+ 
     """
     print("🔵 Check-Out View Triggered")
     booking = get_object_or_404(Booking, id=booking_id)

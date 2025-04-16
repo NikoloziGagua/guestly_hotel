@@ -29,6 +29,10 @@ from services.models import ServiceRequest, FoodOrder
 
 
 def register(request):
+    """
+    Handle user registration using CustomUserRegisterForm.
+    Sets default role as 'guest' for new registrations.
+    """
     if request.method == 'POST':
         form = CustomUserRegisterForm(request.POST)
         if form.is_valid():
@@ -43,12 +47,25 @@ def register(request):
 
 @login_required
 def role_based_redirect(request):
+    """
+    Redirect users to their appropriate dashboard based on their role.
+    Uses the get_dashboard_url method from the CustomUser model.
+    """
     return redirect(request.user.get_dashboard_url())
 
 
 
 @login_required
 def guest_dashboard(request):
+    """
+    Display guest dashboard with:
+    - Active bookings
+    - Available rooms (cached)
+    - Food orders
+    - Service requests
+    - Room cost calculations
+    Uses caching for available rooms to improve performance.
+    """
     user = request.user
     active_booking = Booking.objects.filter(guest=user, status='checked_in').first()
 
@@ -82,6 +99,14 @@ def guest_dashboard(request):
 
 @login_required
 def booking_detail(request, booking_id):
+    """
+    Show detailed information for a specific booking:
+    - Room costs
+    - Food orders and costs
+    - Service requests and costs
+    - Total cost calculation
+    Ensures users can only view their own bookings.
+    """
     booking = get_object_or_404(Booking, id=booking_id, guest=request.user)
 
     nights = (booking.check_out_date - booking.check_in_date).days
@@ -109,6 +134,11 @@ def booking_detail(request, booking_id):
 @login_required
 @receptionist_required
 def receptionist_dashboard(request):
+    """
+    Display receptionist dashboard showing:
+    - Current bookings (reserved and checked-in)
+    Restricted to users with receptionist role.
+    """
     current_bookings = Booking.objects.filter(status__in=['reserved', 'checked_in'])
     context = {
         'welcome_message': f"Receptionist Dashboard: {request.user.username}",
@@ -121,6 +151,13 @@ def receptionist_dashboard(request):
 @login_required
 @housekeeping_required
 def housekeeping_dashboard(request):
+    """
+    Display housekeeping dashboard with:
+    - Rooms needing cleaning (ordered by room number)
+    - Pending cleaning requests
+    - In-progress cleaning tasks
+    Restricted to users with housekeeping role.
+    """
     # Get rooms needing cleaning
     rooms_needing_cleaning = Room.objects.filter(status='needs_cleaning').order_by('room_number')
     
@@ -137,7 +174,13 @@ def housekeeping_dashboard(request):
     return render(request, 'users/housekeeping_dashboard.html', context)
 @login_required
 def room_service_dashboard(request):
-    
+    """
+    Display room service dashboard showing:
+    - Active food orders (excluding delivered/canceled)
+    - Pending service requests (excluding cleaning)
+    - Current time for order tracking
+    Uses select_related for optimized database queries.
+    """
     # Get pending food orders (excluding completed/canceled)
     food_orders = FoodOrder.objects.exclude(
         status__in=['delivered', 'canceled']
@@ -165,6 +208,15 @@ def room_service_dashboard(request):
 @login_required
 @manager_required
 def manager_control_panel(request):
+    """
+    Comprehensive management interface showing:
+    - All rooms (cached)
+    - All users (cached)
+    - All bookings
+    - All food orders
+    - All service requests
+    Uses caching for stable data to improve performance.
+    """
     rooms = cache.get('stable_rooms')
     if rooms is None:
         rooms = Room.objects.all()
@@ -192,10 +244,12 @@ def manager_control_panel(request):
 @manager_required
 def manager_reports(request):
     """
-    Aggregates data for the manager reports, including:
-      - Salary data: Total tasks completed and total payments per role.
-      - Revenue data: Total revenue from room bookings, food orders, and service requests.
-      - Profit calculation: 75% of room revenue is profit, while 25% is allocated for maintenance.
+    Generate financial and operational reports including:
+    - Staff salary data and task completion
+    - Revenue from rooms, food, and services
+    - Profit calculations (75% of room revenue)
+    - Maintenance cost allocation (25% of room revenue)
+    Uses complex database aggregations for calculations.
     """
     
     salary_data = SalaryRecord.objects.values('role').annotate(
@@ -234,6 +288,12 @@ def manager_reports(request):
 @login_required
 @manager_required
 def view_all_bookings(request):
+    """
+    Display all bookings in the system:
+    - Ordered by check-in date
+    - Includes related guest and room data
+    Uses select_related for optimized queries.
+    """
     bookings = Booking.objects.select_related('guest', 'room').order_by('-check_in_date')
     context = {
         'bookings': bookings,
@@ -243,12 +303,17 @@ def view_all_bookings(request):
 
 
 def billing_dashboard(request):
+    """Placeholder for future billing dashboard implementation."""
     return HttpResponse("Billing dashboard will go here.")
 
 
 @login_required
 @manager_required
 def view_all_users(request):
+    """
+    Display all users in the system ordered by join date.
+    Restricted to manager role.
+    """
     users = CustomUser.objects.all().order_by('-date_joined')
     return render(request, 'users/view_all_users.html', {'users': users})
 
@@ -256,6 +321,10 @@ def view_all_users(request):
 @login_required
 @manager_required
 def delete_user(request, user_id):
+    """
+    Handle user deletion with confirmation step.
+    Restricted to manager role.
+    """
     user = get_object_or_404(CustomUser, id=user_id)
     if request.method == 'POST':
         user.delete()
@@ -266,6 +335,10 @@ def delete_user(request, user_id):
 @login_required
 @manager_required
 def assign_user_role(request):
+    """
+    Allow managers to assign different roles to users.
+    Handles form validation and role updates.
+    """
     if request.method == 'POST':
         form = AssignRoleForm(request.POST)
         if form.is_valid():
@@ -282,6 +355,10 @@ def assign_user_role(request):
 
 @require_POST
 def toggle_dev_mode(request):
+    """
+    Toggle development mode in session.
+    Used for debugging and testing features.
+    """
     if 'dev_mode' not in request.session:
         request.session['dev_mode'] = False
     request.session['dev_mode'] = not request.session['dev_mode']
@@ -290,6 +367,10 @@ def toggle_dev_mode(request):
 
 @login_required
 def add_user(request):
+    """
+    Handle creation of new users with specified roles.
+    Uses CustomUserCreationForm for validation.
+    """
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -305,6 +386,10 @@ def add_user(request):
 @login_required
 @manager_required
 def reset_user_password(request, user_id):
+    """
+    Initiate password reset for specified user.
+    Sends reset instructions via email.
+    """
     user = get_object_or_404(CustomUser, id=user_id)
     if request.method == 'POST':
         messages.success(request, f'Password reset instructions sent to {user.email}')
@@ -312,10 +397,18 @@ def reset_user_password(request, user_id):
     return redirect('edit_user', user_id=user.id)
 @login_required
 def view_all_users(request):
+    """
+    Display all users in the system ordered by join date.
+    Restricted to manager role.
+    """
     users = CustomUser.objects.all().order_by('-date_joined')
     return render(request, 'users/view_all_users.html', {'users': users})
 @login_required
 def delete_user(request, user_id):
+    """
+    Handle user deletion with confirmation step.
+    Restricted to manager role.
+    """
     user = get_object_or_404(CustomUser, id=user_id)
     if request.method == 'POST':
         username = user.username

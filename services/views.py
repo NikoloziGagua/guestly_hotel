@@ -15,6 +15,13 @@ from django.views.decorators.http import require_POST
 
 @login_required
 def mark_room_cleaned(request, room_id):
+    """
+    Mark a room as cleaned and create salary record for housekeeping staff.
+    Args:
+        room_id: ID of the room to be marked as cleaned
+    Returns:
+        Redirect to housekeeping dashboard with success/error message
+    """
     room = get_object_or_404(Room, id=room_id)
     
     if room.status == 'needs_cleaning':
@@ -43,6 +50,13 @@ def mark_room_cleaned(request, room_id):
 
 @login_required
 def update_food_order_status(request, order_id, new_status):
+    """
+    Update food order status and create salary record for room service staff.
+    Handles 'preparing' and 'delivered' status updates.
+    Args:
+        order_id: ID of the food order
+        new_status: New status to set ('preparing' or 'delivered')
+    """
     order = get_object_or_404(FoodOrder, id=order_id)
     
     # Handle different status updates for food orders
@@ -76,6 +90,14 @@ def update_food_order_status(request, order_id, new_status):
 @login_required
 @require_POST
 def housekeeping_complete_service_request(request, request_id):
+    """
+    Complete a cleaning service request and create salary record.
+    Handles AJAX request for cleaning task completion.
+    Args:
+        request_id: ID of the cleaning service request
+    Returns:
+        JsonResponse with success/error status
+    """
     try:
         service_request = get_object_or_404(ServiceRequest, id=request_id)
         
@@ -117,6 +139,12 @@ def housekeeping_complete_service_request(request, request_id):
             "message": "Internal server error"
         }, status=500)                                      
 def update_service_request_status(request, request_id, new_status):
+    """
+    Update status of any service request and create salary record if applicable.
+    Args:
+        request_id: ID of the service request
+        new_status: New status ('in_progress', 'completed', 'cancelled')
+    """
     service_request = get_object_or_404(ServiceRequest, id=request_id)
     if new_status in ['in_progress', 'completed', 'cancelled']:
         if new_status == 'in_progress':
@@ -146,6 +174,14 @@ def update_service_request_status(request, request_id, new_status):
 @login_required
 @require_POST  
 def complete_service_request_ajax(request, request_id):
+    """
+    Handle AJAX request to complete a service request.
+    Creates salary record for room service staff.
+    Args:
+        request_id: ID of the service request
+    Returns:
+        JsonResponse with success/error status
+    """
     try:
         service_request = get_object_or_404(ServiceRequest, id=request_id)
         service_request.mark_as_completed()
@@ -199,6 +235,10 @@ def cancel_service_request(request, request_id):
 @login_required
 @cache_page(300)
 def food_menu(request):
+    """
+    Display food menu with caching (5 minutes).
+    Shows all food items and checks if user has active booking.
+    """
     items = FoodItem.objects.all()
     active_booking = Booking.objects.filter(guest=request.user, status='checked_in').first()
     context = {
@@ -210,6 +250,12 @@ def food_menu(request):
 
 @login_required
 def place_food_order(request, room_number):
+    """
+    Handle food order placement for checked-in guests.
+    Validates active booking and creates food order with items.
+    Args:
+        room_number: Room number for the order
+    """
     room = get_object_or_404(Room, room_number=room_number)
     active_booking = Booking.objects.filter(guest=request.user, room=room, status='checked_in').first()
     if not active_booking:
@@ -239,6 +285,12 @@ def place_food_order(request, room_number):
 
 @login_required
 def create_general_service_request(request, room_number):
+    """
+    Create new service request for checked-in guests.
+    Validates active booking and creates service request.
+    Args:
+        room_number: Room number for the service
+    """
     room = get_object_or_404(Room, room_number=room_number)
     active_booking = Booking.objects.filter(guest=request.user, room=room, status='checked_in').first()
     if not active_booking:
@@ -266,6 +318,10 @@ def create_general_service_request(request, room_number):
 @login_required
 @room_service_required
 def pending_service_requests(request):
+    """
+    Display pending service requests for room service staff.
+    Excludes cleaning requests which are handled by housekeeping.
+    """
     # For room service, exclude cleaning requests (they go to housekeeping)
     pending_requests = ServiceRequest.objects.filter(status='pending').exclude(request_type='cleaning')
     context = {'pending_requests': pending_requests}
@@ -277,6 +333,10 @@ def pending_service_requests(request):
 @login_required
 @room_service_required
 def room_service_requests_dashboard(request):
+    """
+    Display dashboard for room service staff.
+    Shows pending and in-progress service requests.
+    """
     requests_qs = ServiceRequest.objects.filter(status__in=['pending', 'in_progress']).exclude(request_type='cleaning')
     context = {
         'welcome_message': f"Room Service Requests Dashboard: {request.user.username}",
@@ -290,6 +350,10 @@ def room_service_requests_dashboard(request):
 @login_required
 @manager_required
 def manage_food_menu(request):
+    """
+    Manager interface for food menu management.
+    Lists all food items ordered by name.
+    """
     food_items = FoodItem.objects.all().order_by('name')
     context = {
         'food_items': food_items,
@@ -300,6 +364,10 @@ def manage_food_menu(request):
 @login_required
 @manager_required
 def add_food_item(request):
+    """
+    Handle creation of new food menu items.
+    Processes form data including file uploads.
+    """
     if request.method == 'POST':
         form = FoodItemForm(request.POST, request.FILES)
         if form.is_valid():
@@ -315,6 +383,12 @@ def add_food_item(request):
 @login_required
 @manager_required
 def edit_food_item(request, food_item_id):
+    """
+    Handle editing of existing food menu items.
+    Updates item details and image if provided.
+    Args:
+        food_item_id: ID of the food item to edit
+    """
     food_item = get_object_or_404(FoodItem, id=food_item_id)
     if request.method == 'POST':
         form = FoodItemForm(request.POST, request.FILES, instance=food_item)
@@ -331,6 +405,11 @@ def edit_food_item(request, food_item_id):
 @login_required
 @manager_required
 def delete_food_item(request, food_item_id):
+    """
+    Delete food item from menu.
+    Args:
+        food_item_id: ID of the food item to delete
+    """
     food_item = get_object_or_404(FoodItem, id=food_item_id)
     food_item.delete()
     messages.success(request, "Food item deleted successfully.")
@@ -339,6 +418,10 @@ def delete_food_item(request, food_item_id):
 @login_required
 @manager_required
 def room_service_overview(request):
+    """
+    Manager view for room service operations overview.
+    Shows statistics and all orders with their status.
+    """
     orders = FoodOrder.objects.select_related('guest', 'room').order_by('-ordered_at')
     stats = {
         'total': orders.count(),
@@ -356,6 +439,10 @@ def room_service_overview(request):
 @login_required
 @manager_required
 def view_all_service_requests(request):
+    """
+    Manager view for all service requests.
+    Shows complete history ordered by creation date.
+    """
     requests_list = ServiceRequest.objects.select_related('guest', 'room').order_by('-created_at')
     context = {
         'requests': requests_list,
