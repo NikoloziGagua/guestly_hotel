@@ -194,9 +194,10 @@ Before getting started, make sure you have the following installed:
 
 This will download the Guestly project to your machine.
 
-         git clone https://github.com/NikoloziGagua/guestly.git
+         git clone https://github.com/NikoloziGagua/guestly_hotel.git
 
-         cd guestly
+         cd guestly_hotel
+         
 
 ### 🐍 3. Set Up a Virtual Environment
 
