@@ -395,12 +395,4 @@ def reset_user_password(request, user_id):
         messages.success(request, f'Password reset instructions sent to {user.email}')
         return redirect('edit_user', user_id=user.id)
     return redirect('edit_user', user_id=user.id)
-@login_required
-def view_all_users(request):
-    """
-    Display all users in the system ordered by join date.
-    Restricted to manager role.
-    """
-    users = CustomUser.objects.all().order_by('-date_joined')
-    return render(request, 'users/view_all_users.html', {'users': users})
-@login_required
+
