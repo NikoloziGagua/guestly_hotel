@@ -301,7 +301,7 @@ To load all fixtures, run the following commands:
 
       python manage.py loaddata rooms/fixtures/rooms.json
 
-      python manage.py loaddata payments/fixtures/salaryrate.json
+      python manage.py loaddata payments/fixtures/salaryrates.json
 
       python manage.py loaddata services/fixtures/food_menu.json
 
