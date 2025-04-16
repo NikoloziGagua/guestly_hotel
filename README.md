@@ -1,13 +1,13 @@
    # 🏨 Guestly – Comprehensive Overview 
 -line175- how to run guestly yourself-
 ## 🧠 What is Guestly?
-Guestly is an  hotel management system replica built with Django. It models hotel operations and enhances guest experiences by providing role-based workflows for every part of the hospitality process — from booking and check-in to room service, cleaning, and staff payment management.
+Guestly is a replica of a small hotel management system replica built with Django. It models hotel operations and enhances guest experiences by providing role-based workflows for every part of the hospitality process — from booking and check-in to room service, cleaning, and staff payment management.
 
 ---
-#🔑 Role-Based System
+# 🔑 Role-Based System
 Guestly is centered around four primary roles, each with its own access level, dashboard, and permissions:
 
-###👤 Guest
+### 👤 Guest
 View available rooms
 
 book a room
@@ -153,23 +153,6 @@ Role-based access control for each view
 Login/logout routes
 
 Users cannot access other dashboards or perform restricted actions
-
-# 💬 How to Use the Application
-
-1. **Start with Developer Mode ON** to explore features and UI.
-2. **Log in as any sample user** to experience individual roles:
-   - Guest: Try booking a room and requesting room service.
-   - Receptionist: Perform a check-in or cancel a booking.
-   - Housekeeping: Mark a room as cleaned.
-   - Manager: View all staff, control salaries, review performance.
-3. **Turn OFF Developer Mode** to test real access restrictions.
-Final Notes
-
-- Guestly is a fully working simulation of a hotel management workflow.
-- This project was developed entirely using Django's template system (no APIs or frontend frameworks).
-- Developer Mode makes it easy to test everything without login.
--This application is purely made for demonstrating what I can do
-- Ready for extension, theming, or API integration later!
 
 ---
 
@@ -338,12 +321,6 @@ Create sample users and roles
 
 
 
-### 👤 7. Create a Superuser (Optional but Recommended)
-A superuser has access to the Django admin panel where you can manage all data manually.
-
-
-python manage.py createsuperuser
-
 ### ▶️ 8. Run the Development Server
 Start your server locally:
 
@@ -353,7 +330,23 @@ Start your server locally:
 Visit the application in your browser:
 
       http://127.0.0.1:8000/users/users/main
+# 💬 How to Use the Application
+1. **log in as super user** go to login page username:super passowrd:super 
+1. **Start with Developer Mode ON** to explore features and UI.
+2. **Log in as any sample user** to experience individual roles:
+   - Guest: Try booking a room and requesting room service.
+   - Receptionist: Perform a check-in or cancel a booking.
+   - Housekeeping: Mark a room as cleaned.
+   - Manager: View all staff, control salaries, review performance.
+3. **Turn OFF Developer Mode** to test real access restrictions.
+   ***all passwords for already created users is Nikolozi12***
+Final Notes
 
+- Guestly is a fully working simulation of a hotel management workflow.
+- This project was developed entirely using Django's template system (no APIs or frontend frameworks).
+- Developer Mode makes it easy to test everything without login.
+-This application is purely made for demonstrating what I can do
+- Ready for extension, theming, or API integration later!
 ---
 congrats 🎉 you are running guestly
 ___
