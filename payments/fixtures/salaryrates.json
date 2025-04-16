@@ -1,0 +1,26 @@
+﻿[
+{
+    "model": "payments.salaryrate",
+    "pk": 1,
+    "fields": {
+        "role": "receptionist",
+        "rate": "2.00"
+    }
+},
+{
+    "model": "payments.salaryrate",
+    "pk": 2,
+    "fields": {
+        "role": "housekeeping",
+        "rate": "1.00"
+    }
+},
+{
+    "model": "payments.salaryrate",
+    "pk": 3,
+    "fields": {
+        "role": "room_service",
+        "rate": "0.50"
+    }
+}
+]
