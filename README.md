@@ -152,7 +152,7 @@ python manage.py loaddata users/fixtures/users.json
 python manage.py runserver
 ```
 Access the app at: `http://127.0.0.1:8000/users/users/main`
-
+log in as super user
 ## 💬 Using Guestly
 1. **Superuser Login**: Use `username: super`, `password: super` to access all features.
 2. **Sample Users**: Log in as guest, receptionist, housekeeping, or manager (password: `Nikolozi12`).
