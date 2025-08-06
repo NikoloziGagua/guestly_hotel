@@ -150,7 +150,6 @@ python manage.py loaddata services/fixtures/food_menu.json
 python manage.py runserver
 ```
 Access the app at: `http://127.0.0.1:8000/users/users/main`
-log in as super user
 ## 💬 Using Guestly
 1. **Create account**: You will create guest account, in guestly staff accounts are created by the manager
 2. **Log in**: Log in as guest, and explore what guests can do
