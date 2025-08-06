@@ -78,7 +78,6 @@ python -m venv venv
 
 ### 4. Install Dependencies
 ```bash
-cd guestly
 pip install -r requirements.txt
 ```
 
@@ -143,7 +142,6 @@ Pre-populate the database with sample data:
 python manage.py loaddata rooms/fixtures/rooms.json
 python manage.py loaddata payments/fixtures/salaryrates.json
 python manage.py loaddata services/fixtures/food_menu.json
-python manage.py loaddata users/fixtures/users.json
 ```
 > Ensure migrations are applied before loading fixtures.
 
@@ -154,11 +152,12 @@ python manage.py runserver
 Access the app at: `http://127.0.0.1:8000/users/users/main`
 log in as super user
 ## 💬 Using Guestly
-1. **Superuser Login**: Use `username: super`, `password: super` to access all features.
-2. **Sample Users**: Log in as guest, receptionist, housekeeping, or manager (password: `Nikolozi12`).
+1. **Create account**: You will create guest account, in guestly staff accounts are created by the manager
+2. **Log in**: Log in as guest, and explore what guests can do
 3. **Developer Mode**:
    - Enable to explore all features without restrictions.
    - Disable to test role-based access.
+   - While in Dev mode go to MANAGER-> VIEW ALL USERS from here you can add staff
 4. **Try Features**:
    - **Guest**: Book rooms, request services.
    - **Receptionist**: Check guests in/out.
