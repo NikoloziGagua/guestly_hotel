@@ -27,17 +27,7 @@
                 </div>
             </div>
 
-            <!-- Flash messages section -->
-            {% if messages %}
-            <div class="mb-4">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+         
 
             <!-- Food items table with conditional rendering -->
             {% if food_items %}

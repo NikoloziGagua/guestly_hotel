@@ -88,15 +88,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',  # W using MySQL
-        'NAME': 'guestly_db',                  # Name of the database 
-        'USER': 'root',                        # root
-        'PASSWORD': 'J24nVeAcX!',              #  MySQL password
-        'HOST': 'localhost',                   # Localhost since it's running locally
-        'PORT': '3306',                        # Default MySQL port
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

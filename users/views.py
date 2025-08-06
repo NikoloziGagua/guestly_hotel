@@ -18,7 +18,8 @@ from users.decorators import (
     room_service_required, 
     manager_required, 
     housekeeping_required, 
-    receptionist_required
+    receptionist_required,
+    guest_required
 )
 
 from .forms import CustomUserCreationForm, AssignRoleForm
@@ -56,6 +57,7 @@ def role_based_redirect(request):
 
 
 @login_required
+@guest_required
 def guest_dashboard(request):
     """
     Display guest dashboard with:
@@ -173,6 +175,7 @@ def housekeeping_dashboard(request):
     }
     return render(request, 'users/housekeeping_dashboard.html', context)
 @login_required
+@room_service_required
 def room_service_dashboard(request):
     """
     Display room service dashboard showing:
